@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 import _etagen
-from numpy import array, hstack, vstack, loadtxt, median
+from numpy import array, arange, hstack, vstack, loadtxt, median
 from matplotlib.pyplot import scatter
 
 class etagen(_etagen.etagen):
