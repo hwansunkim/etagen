@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Whansun John Kim and Edwin J. Son
+# Copyright (C) 2016 Whansun Kim and Edwin J. Son
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -55,7 +55,7 @@ etagen_mod = Extension('etagen._etagen',
 setup(name = "etagen",
         version = "0.1",
         description = "python wapper of Etagen library",
-        author = "Whansun John Kim and Edwin J. Son",
+        author = "Whansun Kim and Edwin J. Son",
         author_email = "hwansun.kim@gmail.com",
 	packages=['etagen'],
 	package_dir={'etagen': 'python'},

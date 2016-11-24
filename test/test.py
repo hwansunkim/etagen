@@ -66,3 +66,13 @@ ntrg = min(10, h.trgs.shape[0])
 print("Top {0} SNR of trigger clusters: {1}".format(ntrg, h.trgs[h.trgs['snr'].argsort()[::-1]][:ntrg]['snr']))
 
 print("{0}s elapsed in total".format(time() - t0))
+
+for i in range(100):
+	wave = h.get_waveform(i)
+	x = np.arange(wave.shape[0])
+
+	from pylab import *
+	plt.plot(x,wave)
+	plt.show()
+
+

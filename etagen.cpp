@@ -11,7 +11,6 @@
 #include <iostream>
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#define FLOAT double
 #define CFLOAT std::complex<FLOAT>
 #define NPFLOAT NPY_DOUBLE
 #define NPCFLOAT NPY_CDOUBLE
@@ -90,6 +89,7 @@ class etagen
 		FLOAT *weight;
 		int filter_length;
 		FLOAT *w;
+		triggerCluster tc;
 	public:
 		object data;
 		object imf;
@@ -165,6 +165,7 @@ class etagen
 		void set_insf(object&);
 		//object& get_insf;
 		list gen_ptrgs(FLOAT, int, int);
+		numeric::array get_waveform(int);
 		//object& get_ptrgs;
 		numeric::array gen_trgs(numeric::array, FLOAT, FLOAT, FLOAT);
 		//object& get_trgs;
@@ -419,7 +420,6 @@ numeric::array etagen::gen_trgs(numeric::array _ptrgs, FLOAT snr_th, FLOAT ttol,
 	if (_ntrgs == 0) return DoubleToNumpyArray(0, 14, (FLOAT*)0);
 	PyObject *pyarr = PyArray_FromAny(PyArray_ToList((PyArrayObject*) _ptrgs.ptr()), NULL, 0, 0, 0, NULL);
 	trginfo *_trg = (trginfo*) PyArray_DATA(pyarr);
-	triggerCluster tc;
 	cltinfo *clt;
 	tc.set_param(ttol, ftol);
 	for(int i=0; i < _ntrgs; i++)
@@ -432,6 +432,15 @@ numeric::array etagen::gen_trgs(numeric::array _ptrgs, FLOAT snr_th, FLOAT ttol,
 	return DoubleToNumpyArray(tc.numofCluster, 14, (FLOAT*)clt);
 }
 
+numeric::array etagen::get_waveform(int index)
+{
+	int len;
+	FLOAT *wave;
+	FLOAT* _imf_series = static_cast<FLOAT *>(PyArray_DATA(imf.ptr()));
+	npy_intp* shape = PyArray_DIMS(imf.ptr());
+	len = tc.getWaveform(index, &wave, _imf_series, shape[0], shape[1], start_time, fsr);
+	return DoubleToNumpyArray(len, wave);
+}
 object extrema_(object & a)
 {
 	if (PyArray_NDIM(a.ptr()) != 1)
@@ -619,8 +628,8 @@ BOOST_PYTHON_MODULE(_etagen)
 	    (arg("triggers"), arg("snr_threshold")=DEFAULT_SNR_THRESHOLD, arg("t_tolerance")=0, arg("f_tolerance")=0),
 	    ""
 	    )
-	//.def("get_trgs",            &etagen::get_trgs,
-	//    ""
-	//    )
+	.def("get_waveform",            &etagen::get_waveform,
+	   ""
+	   )
 	;
 }

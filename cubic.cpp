@@ -3,38 +3,39 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "cubic.hpp"
 #define eps 0
 
-double h00(double t)
+FLOAT h00(FLOAT t)
 {
     return 2.0*t*t*t - 3.0*t*t +1;
 }
-double h10(double t)
+FLOAT h10(FLOAT t)
 {
     return t*(1.0-t)*(1.0-t);
 }
-double h01(double t)
+FLOAT h01(FLOAT t)
 {
     return t*t*(3.0-2.0*t);
 }
-double h11(double t)
+FLOAT h11(FLOAT t)
 {
     return t*t*(t-1.0);
 }
 
-bool Linear_Interpolation(const std::vector<double> *x_src, const std::vector<double> *y_src, std::vector<double>* destX, std::vector<double>* destY)
+bool Linear_Interpolation(const std::vector<FLOAT> *x_src, const std::vector<FLOAT> *y_src, std::vector<FLOAT>* destX, std::vector<FLOAT>* destY)
 {
-    double x1 = (*x_src)[0];   
-    double x2 = (*x_src)[1];   
-    double y1 = (*y_src)[0];   
-    double y2 = (*y_src)[1];  
+    FLOAT x1 = (*x_src)[0];   
+    FLOAT x2 = (*x_src)[1];   
+    FLOAT y1 = (*y_src)[0];   
+    FLOAT y2 = (*y_src)[1];  
 
     destX->push_back((*x_src)[0]);
     destY->push_back((*y_src)[0]);
 
     for(int i = (*x_src)[0] + 1; i < (*x_src)[1]; i++)
     {
-        destX->push_back((double)i);
+        destX->push_back((FLOAT)i);
         destY->push_back((y1-y2)/(x1-x2)*(i -x1) + y1);
     }
 
@@ -44,7 +45,7 @@ bool Linear_Interpolation(const std::vector<double> *x_src, const std::vector<do
     return true;
 }
 
-bool monotonic_cubic_Hermite_spline(std::vector<double>* x_src, std::vector<double>* y_src, std::vector<double>* destX, std::vector<double>* destY)
+bool monotonic_cubic_Hermite_spline(std::vector<FLOAT>* x_src, std::vector<FLOAT>* y_src, std::vector<FLOAT>* destX, std::vector<FLOAT>* destY)
 {
 
 	if((int)x_src->size() == 2)
@@ -55,9 +56,9 @@ bool monotonic_cubic_Hermite_spline(std::vector<double>* x_src, std::vector<doub
 	// 0-based index 사용.
 	int n = (int)x_src->size();
 	int k = 0;
-	double *m = new double[n];
-	double ak, bk, akbk;
-	double *delta_k = new double[n-1];
+	FLOAT *m = new FLOAT[n];
+	FLOAT ak, bk, akbk;
+	FLOAT *delta_k = new FLOAT[n-1];
 	m[0] = ((*y_src)[1] - (*y_src)[0])/((*x_src)[1] - (*x_src)[0]);
 	m[n-1] = ((*y_src)[n-1] - (*y_src)[n-2])/((*x_src)[n-1]-(*x_src)[n-2]);
 
@@ -97,18 +98,18 @@ bool monotonic_cubic_Hermite_spline(std::vector<double>* x_src, std::vector<doub
 
 	}
 
-	double cur_x = 0.0;
-	double next_x = 0.0;
-	double cur_y = 0.0;
-	double next_y = 0.0;
-	double h = 0.0;
-	double x = 0.0;
-	double t = 0.0, y = 0.0;
+	FLOAT cur_x = 0.0;
+	FLOAT next_x = 0.0;
+	FLOAT cur_y = 0.0;
+	FLOAT next_y = 0.0;
+	FLOAT h = 0.0;
+	FLOAT x = 0.0;
+	FLOAT t = 0.0, y = 0.0;
 
 	for(k = 0; k<n-1; k++)
 	{
-		cur_x = (double)((int)(0.5 + (*x_src)[k]));
-		next_x = (double)((int)((*x_src)[k+1]));
+		cur_x = (FLOAT)((int)(0.5 + (*x_src)[k]));
+		next_x = (FLOAT)((int)((*x_src)[k+1]));
 		cur_y = (*y_src)[k];
 		next_y = (*y_src)[k+1];
 		h = next_x - cur_x;
@@ -134,7 +135,7 @@ bool monotonic_cubic_Hermite_spline(std::vector<double>* x_src, std::vector<doub
 	return true;
 }
 
-bool cubic_spline(std::vector<double>* x_series, std::vector<double>* y_series, std::vector<double> *destX, std::vector<double>* destY)
+bool cubic_spline(std::vector<FLOAT>* x_series, std::vector<FLOAT>* y_series, std::vector<FLOAT> *destX, std::vector<FLOAT>* destY)
 {   
     if((int)x_series->size() == 2)
     {
@@ -143,8 +144,8 @@ bool cubic_spline(std::vector<double>* x_series, std::vector<double>* y_series, 
     }
     int n = (int)x_series->size()-1;
     // Step 1.
-    double *h = new double[n];
-    double *alpha = new double[n];
+    FLOAT *h = new FLOAT[n];
+    FLOAT *alpha = new FLOAT[n];
     
     /* h size is n - 1 */
     for(int i = 0; i < n; i++){
@@ -157,12 +158,12 @@ bool cubic_spline(std::vector<double>* x_series, std::vector<double>* y_series, 
     }
  
     // Step 3.
-    double *l = new double[n+1];
-    double *u = new double[n];
-    double *z = new double[n+1];
-    double *c = new double[n+1];
-    double *b = new double[n];
-    double *d = new double[n];
+    FLOAT *l = new FLOAT[n+1];
+    FLOAT *u = new FLOAT[n];
+    FLOAT *z = new FLOAT[n+1];
+    FLOAT *c = new FLOAT[n+1];
+    FLOAT *b = new FLOAT[n];
+    FLOAT *d = new FLOAT[n];
  
     l[0] = 1; u[0] = 0; z[0] = 0;
  
@@ -183,7 +184,7 @@ bool cubic_spline(std::vector<double>* x_series, std::vector<double>* y_series, 
         d[i] = (c[i+1] - c[i]) / (3*h[i]);
     }
 
-	double x, x_offset, Sx;
+	FLOAT x, x_offset, Sx;
     int t;
     for(t = 0; t < n; t++)
     {
@@ -205,7 +206,7 @@ bool cubic_spline(std::vector<double>* x_series, std::vector<double>* y_series, 
     destX->push_back(x);
     destY->push_back(Sx);
     */
-    if ((double)destX->size() < (*x_series)[n] - (*x_series)[0])
+    if ((FLOAT)destX->size() < (*x_series)[n] - (*x_series)[0])
     {
         return false;
     }

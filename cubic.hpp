@@ -1,3 +1,9 @@
-bool cubic_spline(std::vector<double>* x_series, std::vector<double>* y_series, std::vector<double> *destX, std::vector<double>* destY); 
-bool monotonic_cubic_Hermite_spline(std::vector<double>*, std::vector<double>*, std::vector<double>*, std::vector<double>*);
+#ifndef __CUBIC_H__
+#define __CUBIC_H__
 
+#include "common.h"
+
+bool cubic_spline(std::vector<FLOAT>* x_series, std::vector<FLOAT>* y_series, std::vector<FLOAT> *destX, std::vector<FLOAT>* destY); 
+bool monotonic_cubic_Hermite_spline(std::vector<FLOAT>*, std::vector<FLOAT>*, std::vector<FLOAT>*, std::vector<FLOAT>*);
+
+#endif

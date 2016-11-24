@@ -1,4 +1,7 @@
-#define FLOAT double
+#ifndef __CLUSTER_H__
+#define __CLUSTER_H__
+
+#include "common.h"
 
 /* Trigger information structure */
 typedef struct  
@@ -73,7 +76,7 @@ public:
 	int show();
 	int numCluster();
 	void info(cltinfo *clt);
-
+	trgLink* find(FLOAT, FLOAT, FLOAT, FLOAT);
 };
 
 class triggerCluster
@@ -94,6 +97,7 @@ public:
 	void show();
 	void set_param(FLOAT, FLOAT);
 	cltinfo* getClusteredTrigger(FLOAT);
+	int getWaveform(int index, FLOAT**, FLOAT*, int, int, FLOAT, FLOAT);
 };
 
-
+#endif

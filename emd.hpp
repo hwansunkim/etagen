@@ -1,4 +1,7 @@
-#define FLOAT double
+#ifndef __EMD_H__
+#define __EMD_H__
+
+#include "common.h"
 
 /* Weighted Side EMD Weight Function Type */
 enum weightTpye
@@ -14,3 +17,5 @@ void emd(int, const FLOAT*, FLOAT*, int&, const int, const int, const int);
 int wsemd(int, int, int, FLOAT *const, FLOAT *const, FLOAT*, int&, const int, const int, const int);
 int extrema(const FLOAT *src, const int n, std::vector<FLOAT> &x_pick, std::vector<FLOAT> &y_pick, std::vector<FLOAT> &x_bottom, std::vector<FLOAT> &y_bottom);
 void weightfunction(FLOAT *w, int n, int type, FLOAT alpha);
+
+#endif

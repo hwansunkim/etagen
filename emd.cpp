@@ -162,7 +162,6 @@ int sift(const std::vector<FLOAT> *src, std::vector<FLOAT> *imf, const int mono)
 	std::vector<FLOAT> destY_middle;
 
 	//peak & bottom search
-	// if (extrema(src->data(), src->size(), x_peak, y_peak, x_bottom, y_bottom) < 3) return -1;
 	extrema(src->data(), src->size(), x_peak, y_peak, x_bottom, y_bottom);
 	
 	if( mono == 1)
@@ -191,18 +190,15 @@ int sift(const std::vector<FLOAT> *src, std::vector<FLOAT> *imf, const int mono)
 int stopcondition(const std::vector<FLOAT> *src)
 {
 	int i;
-	//int p_sign = (*src)[1] - (*src)[0] > 0 ? 1 : 0;
 	FLOAT diff = (*src)[1] - (*src)[0];
 	int p_sign = sgn(diff);
 	int sign;
-	//int p_zero = (*src)[0] > 0 ? 1 : 0;
 	int p_zero = sgn((*src)[0]);
 	int zero;
 	int Next = 0;
 	int Nzero = 0;
 	for(i=1; i < (int)src->size()-1; i++)
 	{
-		//sign = ((*src)[i+1] - (*src)[i] > 0)?1:0;
 		diff = (*src)[i+1] - (*src)[i];
 		sign = sgn(diff);
 		if(sign != 0)
@@ -225,7 +221,6 @@ int stopcondition(const std::vector<FLOAT> *src)
 		}
 	}   
 
-	//  printf("%d - %d = %d\n", Nzero, Next, Nzero-Next);
 	return Nzero - Next > 0? Nzero - Next : Next - Nzero;
 }
 
@@ -283,7 +278,6 @@ void weightfunction_exp(FLOAT *w, int n, FLOAT alpha)
 	//#pragma omp parallel for
 	for(int i = 0; i < n; i++)
 	{
-		//w[i] = std::exp(-1.0/2.0*std::pow(alpha*(2.0*i/n -1.0),2.0));
 		FLOAT x = alpha*(i/(n-1) - 0.5);
 		w[i] = std::exp(-2.0*x*x);
 	}
@@ -291,11 +285,10 @@ void weightfunction_exp(FLOAT *w, int n, FLOAT alpha)
 
 void weightfunction_sin(FLOAT *w, int n)
 {
-	const FLOAT pi = 3.141592653;
-	//#pragma omp parallel for
+	const FLOAT pi = 3.141592653589793;
+
 	for(int i = 0; i < n; i++)
 	{
-		//w[i] = std::pow(std::sin(i*pi/n),2.0);
 		w[i] = std::sin(i*pi/(n-1));
 		w[i] *= w[i];
 	}

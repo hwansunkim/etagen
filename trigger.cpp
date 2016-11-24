@@ -5,8 +5,6 @@
 #include <cmath>
 #include "DHT.h"
 
-#define FLOAT double
-
 using namespace boost::python;
 
 object DoubleToNumpyArray( int nd, int s, FLOAT *data );

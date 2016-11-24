@@ -86,9 +86,9 @@ int trgLink::show()
 	printf("fmax : %.2f, ", trg->fmax);
 	printf("snr : %.2f\n", trg->snr);
 	#else
-	printf("id : %.2f, ", trg->id);
-	printf("st : %.2f, ", trg->start_index);
-	printf("et : %.2f, ", trg->end_index);
+	printf("id : %d, ", (int)trg->id);
+	printf("st : %lf, ", trg->start_index);
+	printf("et : %lf, ", trg->end_index);
 	printf("fmin : %.2f, ", trg->fmin);
 	printf("fmax : %.2f\n ", trg->fmax);
 	#endif
@@ -253,7 +253,6 @@ void cluster::info(cltinfo *clt)
 	clt->c_index /= clt->snr;
 	clt->c_amp /= clt->snr;
 	clt->c_freq /= clt->snr;
-	// clt->c_index = std::round(clt->c_index);
 	clt->snr = sqrt(clt->snr);
 }
 
@@ -265,6 +264,20 @@ int cluster::numCluster()
 		return ret + next->numCluster();
 	}
 	return ret;
+}
+
+trgLink* cluster::find(FLOAT s, FLOAT e, FLOAT fl, FLOAT fh)
+{
+	if (start_index == s && end_index == e && fmin == fl && fmax == fh)
+	{
+		return data;
+	}
+	else if(next != NULL)
+	{
+		return next->find(s,e,fl,fh);
+	}
+
+	return NULL;
 }
 triggerCluster::triggerCluster()
 {
@@ -357,8 +370,6 @@ cltinfo* triggerCluster::getClusteredTrigger(FLOAT th_snr)
 {
 	numofCluster = root->numCluster();	//maximum number of Clustered Trigger
 	
-	printf("total Clusters : %d > %lf\n", numofCluster, th_snr);
-
 	clt = new cltinfo[numofCluster];
 	cluster *tmp = root;
 	int i = 0;
@@ -372,6 +383,38 @@ cltinfo* triggerCluster::getClusteredTrigger(FLOAT th_snr)
 		tmp = tmp->next;
 	}
 	numofCluster = i;
-	printf("total Clusters : %d > %lf\n", numofCluster, th_snr);
+	// printf("total Clusters : %d > %lf\n", numofCluster, th_snr);
 	return clt;
+}
+
+int triggerCluster::getWaveform(int index, FLOAT **ret, FLOAT* imf, int imf_num, int data_size, FLOAT start_time, FLOAT fsr )
+{
+	trgLink *trg = root->find(clt[index].start_index, clt[index].end_index, clt[index].fmin, clt[index].fmax);
+	//trg->show();
+	int n = (clt[index].end_index - clt[index].start_index) * fsr;
+
+	if (trg == NULL)
+		return 0;
+	
+	trg->show();
+	FLOAT *wave = new FLOAT[n];
+	std::memset(wave, 0.0, sizeof(FLOAT)*n);
+	int start = (clt[index].start_index - start_time) * fsr;
+	// printf("start index : %d, length : %d \n", start, n);
+	while(trg != NULL)
+	{
+		trginfo *t = trg->trg;
+		int s = (t->start_index - start_time) * fsr;
+		int e = (t->end_index - start_time) * fsr;
+		int id = (int)t->id;
+		for(int i= 0; i < e-s; i++)
+		{
+
+			wave[s-start + i] += *(imf + data_size * id + s +i); 
+		}
+
+		trg = trg->next;
+	}
+	*ret = wave;
+	return n;
 }

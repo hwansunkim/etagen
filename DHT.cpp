@@ -3,7 +3,8 @@
 #include <cmath>
 #include <omp.h>
 #include <algorithm>
-#define FLOAT double
+
+#include "common.h"
 
 const FLOAT PI = 3.141592653589793;
 
