@@ -97,7 +97,7 @@ class etagen
 		object hht;
 		object insa;
 		object insf;
-		object ptrgs;
+		object utrgs;
 		object trgs;
 
 		int numberofimf;
@@ -115,7 +115,7 @@ class etagen
 			hht       = none;
 			insa      = none;
 			insf      = none;
-			ptrgs     = none;
+			utrgs     = none;
 			trgs      = none;
 
 			//private variables initialization
@@ -164,9 +164,9 @@ class etagen
 		//object& get_insa;
 		void set_insf(object&);
 		//object& get_insf;
-		list gen_ptrgs(FLOAT, int, int);
+		list gen_utrgs(FLOAT, int, int);
 		numeric::array get_waveform(int);
-		//object& get_ptrgs;
+		//object& get_utrgs;
 		numeric::array gen_trgs(numeric::array, FLOAT, FLOAT, FLOAT);
 		//object& get_trgs;
 };
@@ -379,7 +379,7 @@ void etagen::hilbert_(int _filter_len, int _stride)
 	free(_dht_frequency);
 }
 
-list etagen::gen_ptrgs(FLOAT snr_th, int sidx, int len)
+list etagen::gen_utrgs(FLOAT snr_th, int sidx, int len)
 {
 	list ret;
 	if ((len < MIN_GEN_TRG_LENGTH) || (len > data_size))
@@ -414,11 +414,11 @@ list etagen::gen_ptrgs(FLOAT snr_th, int sidx, int len)
 	return ret;
 }
 
-numeric::array etagen::gen_trgs(numeric::array _ptrgs, FLOAT snr_th, FLOAT ttol, FLOAT ftol)
+numeric::array etagen::gen_trgs(numeric::array _utrgs, FLOAT snr_th, FLOAT ttol, FLOAT ftol)
 {
-	npy_intp _ntrgs = PyArray_SIZE(_ptrgs.ptr());
+	npy_intp _ntrgs = PyArray_SIZE(_utrgs.ptr());
 	if (_ntrgs == 0) return DoubleToNumpyArray(0, 14, (FLOAT*)0);
-	PyObject *pyarr = PyArray_FromAny(PyArray_ToList((PyArrayObject*) _ptrgs.ptr()), NULL, 0, 0, 0, NULL);
+	PyObject *pyarr = PyArray_FromAny(PyArray_ToList((PyArrayObject*) _utrgs.ptr()), NULL, 0, 0, 0, NULL);
 	trginfo *_trg = (trginfo*) PyArray_DATA(pyarr);
 	cltinfo *clt;
 	tc.set_param(ttol, ftol);
@@ -549,7 +549,7 @@ BOOST_PYTHON_MODULE(_etagen)
 	.def_readonly("insf",       &etagen::insf,
 	    "instantaneous frequency of each IMFs"
 	    )
-	.def_readwrite("ptrgs",      &etagen::ptrgs,
+	.def_readwrite("utrgs",      &etagen::utrgs,
 	    "preliminary (unclustered) triggers"
 	    )
 	.def_readwrite("trgs",       &etagen::trgs,
@@ -617,11 +617,11 @@ BOOST_PYTHON_MODULE(_etagen)
 	//.def("get_insf",            &etagen::get_insf,
 	//    ""
 	//    )
-	.def("gen_ptrgs",           &etagen::gen_ptrgs,
+	.def("gen_utrgs",           &etagen::gen_utrgs,
 	    (arg("snr_threshold")=DEFAULT_SNR_THRESHOLD, arg("start")=0, arg("length")=0),
 	    ""
 	    )
-	//.def("get_ptrgs",           &etagen::get_ptrgs,
+	//.def("get_utrgs",           &etagen::get_utrgs,
 	//    ""
 	//    )
 	.def("gen_trgs",            &etagen::gen_trgs,

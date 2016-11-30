@@ -53,10 +53,10 @@ print("{0}s elapsed to get instantaneous amplitude and frequency".format(time() 
 
 # generate unclustered triggers
 t1 = time()
-h.get_ptriggers(snr_th=min_snr, stride=trgst, overlap=trgov)
-print("{0}s elapsed to generate {1} triggers".format(time() - t1, h.ptrgs.shape[0]))
-ntrg = min(10, h.ptrgs.shape[0])
-print("Top {0} SNR of triggers: {1}".format(ntrg, h.ptrgs[h.ptrgs['snr'].argsort()[::-1]][:ntrg]['snr']))
+h.get_utriggers(snr_th=min_snr, stride=trgst, overlap=trgov)
+print("{0}s elapsed to generate {1} triggers".format(time() - t1, h.utrgs.shape[0]))
+ntrg = min(10, h.utrgs.shape[0])
+print("Top {0} SNR of triggers: {1}".format(ntrg, h.utrgs[h.utrgs['snr'].argsort()[::-1]][:ntrg]['snr']))
 
 # cluster triggers
 t1 = time()
