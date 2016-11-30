@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright (C) 2016 Whansun Kim and Edwin J. Son
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -15,8 +17,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 """
-Etagen - Trigger generator using Hilbert-Huang Transform implement by C++
-This is Python wrapper of Etagen library.
+Etagen - An event trigger generator based on Hilbert-Huang Transform.
+It is a Python module but the core library of EtaGen is built in C/C++
 """
 
 from distutils.core import setup, Extension
@@ -56,7 +58,7 @@ setup(name = "etagen",
         version = "0.1",
         description = "python wapper of Etagen library",
         author = "Whansun Kim and Edwin J. Son",
-        author_email = "hwansun.kim@gmail.com",
+        author_email = "hwansun.kim@gmail.com, eddy@nims.re.kr",
 	packages=['etagen'],
 	package_dir={'etagen': 'python'},
         ext_modules = [etagen_mod],
