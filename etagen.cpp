@@ -199,13 +199,10 @@ void etagen::set_emd_param(int num_imfs, int num_sifts, int S_number,
 	alpha = (FLOAT) numberofbuf / 2.0;
 	s_number = S_number;
 	numberofbuf = num_seg > 0 ? num_seg : 8;
-	if (emd_size != numberofbuf * bufoffset)
-	{
-		bufoffset = (int) (emd_size / numberofbuf);
-		if (weight != NULL) free(weight);
-		weight = (FLOAT*)malloc(sizeof(FLOAT)*numberofbuf * bufoffset);
-		weightfunction(weight, numberofbuf * bufoffset, weight_type, alpha);
-	}
+	bufoffset = (int) (emd_size / numberofbuf);
+	if (weight != NULL) free(weight);
+	weight = (FLOAT*)malloc(sizeof(FLOAT)*numberofbuf * bufoffset);
+	weightfunction(weight, numberofbuf * bufoffset, weight_type, alpha);
 }
 
 void etagen::show_emd_param()
