@@ -238,11 +238,11 @@ class etagen(_etagen.etagen):
 			hhtout.trgs  = self.trgs[idx]
 			hhtout.trgs[hhtout.trgs['s_time'] < hhtout.start_time]['s_time'] = hhtout.start_time
 			hhtout.trgs[hhtout.trgs['e_time'] > end_time]['e_time'] = end_time
-			hhtout.waveforms = []
-			for i in idx:
-				sidx = max(0, int((hhtout.start_time - self.trgs[i]['s_time']) * self.fsr))
-				eidx = len(self.waveforms[i]) - max(0, int((end_time - self.trgs[i]['e_time']) * self.fsr))
-				hhtout.waveforms.append(self.waveforms[i][sidx:-eidx])
+			#hhtout.waveforms = []
+			#for i in idx:
+				#sidx = max(0, int((hhtout.start_time - self.trgs[i]['s_time']) * self.fsr))
+				#eidx = len(self.waveforms[i]) - max(0, int((end_time - self.trgs[i]['e_time']) * self.fsr))
+				#hhtout.waveforms.append(self.waveforms[i][sidx:-eidx])
 			try:
 				hhtout.u_snr_threshold = self.u_snr_threshold
 			except:

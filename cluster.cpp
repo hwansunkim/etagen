@@ -413,7 +413,7 @@ int triggerCluster::getWaveform(int index, FLOAT **ret, FLOAT* imf, int imf_num,
 	if (trg == NULL)
 		return 0;
 	
-	trg->show();
+	//trg->show();
 	FLOAT *wave = new FLOAT[n];
 	std::memset(wave, 0.0, sizeof(FLOAT)*n);
 	int start = (clt[index].start_index - start_time) * fsr;
