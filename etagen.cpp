@@ -167,7 +167,7 @@ class etagen
 		void set_emd_param(int num_imfs=0, int num_sifts=MAX_SIFT,
 				   int S_number=0, int monotonic_spline=0,
 				   int emd_size=2048, int num_seg=8,
-				   int w_type=exp_kernel);
+				   int w_type=sin_kernel);
 		void show_emd_param();
 		void emd_();
 		void wsemd_();
@@ -579,7 +579,7 @@ BOOST_PYTHON_MODULE(_etagen)
 	    (arg("num_imfs")=0, arg("num_sifts")=MAX_SIFT,
 	       arg("S_number")=0, arg("monotonic_spline")=0,
 	       arg("emd_size")=2048, arg("num_seg")=8,
-	       arg("w_type")=exp_kernel),
+	       arg("w_type")=sin_kernel),
 	    ""
 	    )
 	.def("show_emd_param",      &etagen::show_emd_param,
