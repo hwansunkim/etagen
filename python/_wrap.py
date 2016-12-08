@@ -154,7 +154,7 @@ class etagen(_etagen.etagen):
 		# s_time, e_time, c_time, c_freq, c_energy, p_time, p_freq, p_amp, p_imf_idx, p_snr, npts, snr
 
 		carg = self.utrgs['snr']>=self.u_snr_threshold
-		utrgs = self.utrgs[carg]
+		utrgs = array(self.utrgs[carg])
 
 		_trgs = self.gen_trgs(utrgs, snr_threshold=self.snr_threshold, t_tolerance=t_tolerance, f_tolerance=f_tolerance)
 		self.trgs = array(zip(_trgs[:,0], _trgs[:,1], _trgs[:,4], _trgs[:,6], _trgs[:,5], _trgs[:,7], _trgs[:,9], _trgs[:,8], _trgs[:,10].astype(int), _trgs[:,11], _trgs[:,2], _trgs[:,3], _trgs[:,12].astype(int), _trgs[:,13]), dtype=etagen.trg_dtype)
