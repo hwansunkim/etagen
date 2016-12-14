@@ -67,12 +67,20 @@ print("Top {0} SNR of trigger clusters: {1}".format(ntrg, h.trgs[h.trgs['snr'].a
 
 print("{0}s elapsed in total".format(time() - t0))
 
-for i in range(100):
-	wave = h.get_waveform(i)
-	x = np.arange(wave.shape[0])
+indx = h.trgs['snr'].argsort()[::-1]
+#indx = np.arange(h.trgs.shape[0])
+#np.random.shuffle(indx)
+#ntrg = min(3, int(np.floor(np.sqrt(h.trgs.shape[0]))))
+ntrg = min(3, int(np.floor(np.sqrt(ntrg))))
 
-	from pylab import *
+import matplotlib.pyplot as plt
+plt.figure(figsize=(16,12),dpi=150)
+for i in range(ntrg*ntrg):
+	wave = h.get_waveform(indx[i])
+	x = h.trgs[indx[i]]['s_time'] + np.arange(wave.shape[0]).astype(float) / h.fsr
+
+	plt.subplot(ntrg,ntrg,i+1)
 	plt.plot(x,wave)
-	plt.show()
-
-
+	plt.legend(['TRG #{0} (SNR: {1:.2f})'.format(indx[i], h.trgs[indx[i]]['snr'])], loc=0)
+plt.show()
+#plt.savefig("test.png")

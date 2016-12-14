@@ -430,14 +430,13 @@ list etagen::gen_utrgs(FLOAT snr_th, int sidx, int len)
 
 numeric::array etagen::gen_trgs(numeric::array _utrgs, FLOAT snr_th, FLOAT ttol, FLOAT ftol)
 {
-	npy_intp* shape = PyArray_DIMS(_utrgs.ptr());
-	if (shape[0] == 0) return DoubleToNumpyArray(0, 14, (FLOAT*)0);
-	//PyObject *pyarr = PyArray_FromAny(PyArray_ToList((PyArrayObject*) _utrgs.ptr()), NULL, 0, 0, 0, NULL);
-	//trginfo *_trg = (trginfo*) PyArray_DATA(pyarr);
-	trginfo *_trg = (trginfo*) PyArray_DATA(_utrgs.ptr());
+	npy_intp _ntrgs = PyArray_SIZE(_utrgs.ptr());
+	if (_ntrgs == 0) return DoubleToNumpyArray(0, 14, (FLOAT*)0);
+	PyObject *pyarr = PyArray_FromAny(PyArray_ToList((PyArrayObject*) _utrgs.ptr()), NULL, 0, 0, 0, NULL);
+	trginfo *_trg = (trginfo*) PyArray_DATA(pyarr);
 	cltinfo *clt;
 	tc.set_param(ttol, ftol);
-	for(int i=0; i < shape[0]; i++)
+	for(int i=0; i < _ntrgs; i++)
 	{
 		tc.feed(&_trg[i]);
 	}
