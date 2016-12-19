@@ -210,6 +210,12 @@ cluster* cluster::clustering(trginfo *trg, FLOAT alpha, FLOAT beta)
 					tmp->next = NULL;
 					delete tmp;
 				}
+				if(tmp->last == 1)
+				{
+					last = 1;
+					next = NULL;
+				}
+
 				clt = this;
 			}
 			else	//bypass
