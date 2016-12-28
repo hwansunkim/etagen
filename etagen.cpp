@@ -423,7 +423,8 @@ list etagen::gen_utrgs(FLOAT snr_th, int sidx, int len)
 	FLOAT* _dht_frequency = static_cast<FLOAT *>(PyArray_DATA(insf.ptr()));
 	for(int i=0; i < numberofimf; i++)
 	{
-		ret.append(trigger_gen(i, _imf_series + data_size*i + sidx, len, _dht_amplitude + data_size*i + sidx, _dht_frequency + (data_size-1)*i + sidx, median(data_size, abs(data_size, _time_series)), snr_th));
+		ret.append(trigger_gen(i, _imf_series + data_size*i + sidx, len, _dht_amplitude + data_size*i + sidx, _dht_frequency + (data_size-1)*i + sidx, med_abs_dev(data_size, _time_series), snr_th));
+		//ret.append(trigger_gen(i, _imf_series + data_size*i + sidx, len, _dht_amplitude + data_size*i + sidx, _dht_frequency + (data_size-1)*i + sidx, median(data_size, abs(data_size, _time_series)), snr_th));
 	}
 	return ret;
 }

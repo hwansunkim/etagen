@@ -153,11 +153,25 @@ void quartile(FLOAT* pF, int n, FLOAT *fmax, FLOAT *fmin)
 	}
 }
 
+FLOAT med_abs_dev(int n, FLOAT* data)
+{
+	FLOAT* abs_dev = (FLOAT*)malloc(sizeof(FLOAT)*n);
+	FLOAT data_med = median(n, data);
+
+	for(int i=0; i< n; i++)
+	{
+		abs_dev[i] = std::abs(data[i] - data_med);
+	}
+
+	return median(n, abs_dev);
+}
+
 object trigger_gen(int imfs, FLOAT* data, int n, FLOAT *amplitude, FLOAT *frequency, FLOAT m, FLOAT snr_th)
 {
 	FLOAT fac_med = 1.4;
 	FLOAT* data_abs = abs(n, data);
-	FLOAT data_med = median(n, data_abs);
+	FLOAT data_med = med_abs_dev(n, data);
+	//FLOAT data_med = median(n, data_abs);
 	//fac_med *= (1.0 + data_med / m);
 	data_med *= fac_med;
 	m *= fac_med;
