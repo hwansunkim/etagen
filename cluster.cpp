@@ -399,7 +399,7 @@ cltinfo* triggerCluster::getClusteredTrigger(FLOAT th_snr)
 	while(tmp != NULL)
 	{
 		tmp->info(&clt[i]);
-		if(clt[i].snr > th_snr)
+		if(clt[i].snr >= th_snr)
 		{
 			i++;
 		}
