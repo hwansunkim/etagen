@@ -19,5 +19,6 @@
 #define __COMMON_H__
 
 #define FLOAT double
+#define MADFACTOR 1.48
 
 #endif

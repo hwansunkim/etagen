@@ -269,7 +269,9 @@ void cluster::info(cltinfo *clt, FLOAT m, FLOAT* imf, int imf_num, int data_size
 		clt->c_index += tmp->trg->peak_index * tmp->trg->snr * tmp->trg->snr;
 		clt->c_amp += tmp->trg->amplitude * tmp->trg->snr * tmp->trg->snr;
 		clt->c_freq += tmp->trg->frequency * tmp->trg->snr * tmp->trg->snr;
+		clt->snr += tmp->trg->snr * tmp->trg->snr;
 
+		/*
 		trginfo *t = tmp->trg;
 		int s = (t->start_index - start_time) * fsr;
 		int e = (t->end_index - start_time) * fsr;
@@ -279,13 +281,15 @@ void cluster::info(cltinfo *clt, FLOAT m, FLOAT* imf, int imf_num, int data_size
 
 			clt->snr += *(imf + data_size * id + s +i); 
 		}
+		*/
 		
 		tmp = tmp->next;
 	}
 	clt->c_index /= clt->snr;
 	clt->c_amp /= clt->snr;
 	clt->c_freq /= clt->snr;
-	clt->snr /= m;
+	//clt->snr = sqrt(clt->snr);
+	//clt->snr /= m;
 }
 
 int cluster::numCluster()
@@ -414,6 +418,15 @@ cltinfo* triggerCluster::getClusteredTrigger(FLOAT th_snr)
 	while(tmp != NULL)
 	{
 		tmp->info(&clt[i], median, imf, imf_num, data_size, start_time, fsr);
+
+		int n = (clt[i].end_index - clt[i].start_index) * fsr;
+		FLOAT *wave = new FLOAT[n];
+		int len = getWaveform(i, &wave);
+		FLOAT snr = 0.0;
+		for (int j=0; j < len; j++)
+			snr += wave[j] * wave[j];
+		clt[i].snr = sqrt(snr) / median / MADFACTOR;
+
 		if(clt[i].snr >= th_snr)
 		{
 			i++;

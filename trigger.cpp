@@ -168,7 +168,7 @@ FLOAT med_abs_dev(int n, FLOAT* data)
 
 object trigger_gen(int imfs, FLOAT* data, int n, FLOAT *amplitude, FLOAT *frequency, FLOAT m, FLOAT snr_th)
 {
-	FLOAT fac_med = 1.48;
+	FLOAT fac_med = MADFACTOR;
 	FLOAT* data_abs = abs(n, data);
 	FLOAT data_med = med_abs_dev(n, data);
 	//FLOAT data_med = median(n, data_abs);
