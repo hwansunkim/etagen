@@ -24,7 +24,7 @@ class etagen(_etagen.etagen):
 	# dtype for trigger informations
 	utrg_dtype = [('imf_idx',int), ('s_time',float), ('e_time',float), ('p_time',float), ('p_amp',float), ('p_freq',float), ('f_min',float), ('f_max',float), ('snr',float)]
 
-	trg_dtype = [('s_time',float), ('e_time',float), ('c_time',float), ('c_freq',float), ('c_energy',float), ('p_time',float), ('p_freq',float), ('p_amp',float), ('p_imf_idx',int), ('p_snr',float), ('f_min',float), ('f_max',float), ('npts',int), ('snr',float)]
+	trg_dtype = [('s_time',float), ('e_time',float), ('c_time',float), ('c_freq',float), ('c_energy',float), ('p_time',float), ('p_freq',float), ('p_amp',float), ('p_imf_idx',int), ('p_snr',float), ('f_min',float), ('f_max',float), ('npts',int), ('snr_rss',float), ('snr',float)]
 
 	def get_utriggers(self, snr_th=3, stride=0, overlap=0, skip=0):
 		"""
@@ -157,7 +157,7 @@ class etagen(_etagen.etagen):
 		utrgs = self.utrgs[carg]
 
 		_trgs = self.gen_trgs(utrgs, snr_threshold=self.snr_threshold, t_tolerance=t_tolerance, f_tolerance=f_tolerance)
-		self.trgs = array(zip(_trgs[:,0], _trgs[:,1], _trgs[:,4], _trgs[:,6], _trgs[:,5], _trgs[:,7], _trgs[:,9], _trgs[:,8], _trgs[:,10].astype(int), _trgs[:,11], _trgs[:,2], _trgs[:,3], _trgs[:,12].astype(int), _trgs[:,13]), dtype=etagen.trg_dtype)
+		self.trgs = array(zip(_trgs[:,0], _trgs[:,1], _trgs[:,4], _trgs[:,6], _trgs[:,5], _trgs[:,7], _trgs[:,9], _trgs[:,8], _trgs[:,10].astype(int), _trgs[:,11], _trgs[:,2], _trgs[:,3], _trgs[:,12].astype(int), _trgs[:,13], _trgs[:,14]), dtype=etagen.trg_dtype)
 		print "... generated %i trigger cluster(s)" % (self.trgs.shape[0])
 
 	def get_triggers_from_file(self, trg_file, **kwargs):

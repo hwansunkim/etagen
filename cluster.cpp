@@ -250,12 +250,19 @@ void cluster::info(cltinfo *clt, FLOAT m, FLOAT* imf, int imf_num, int data_size
 	clt->fmax = fmax;
 	clt->nptr = data->numlink();
 	clt->snr = 0.0;
+	clt->snr_rss = 0.0;
 	clt->p_snr = 0.0;
 	clt->c_index = 0.0;
 	clt->c_amp = 0.0;
 	clt->c_freq = 0.0;
 
 	trgLink *tmp = data;
+
+	int n = (end_index - start_index) * fsr;
+	FLOAT *wave = new FLOAT[n];
+	std::memset(wave, 0.0, sizeof(FLOAT)*n);
+	int start = (start_index - start_time) * fsr;
+	
 	while(tmp != NULL)
 	{
 		if(tmp->trg->snr > clt->p_snr)
@@ -269,9 +276,8 @@ void cluster::info(cltinfo *clt, FLOAT m, FLOAT* imf, int imf_num, int data_size
 		clt->c_index += tmp->trg->peak_index * tmp->trg->snr * tmp->trg->snr;
 		clt->c_amp += tmp->trg->amplitude * tmp->trg->snr * tmp->trg->snr;
 		clt->c_freq += tmp->trg->frequency * tmp->trg->snr * tmp->trg->snr;
-		clt->snr += tmp->trg->snr * tmp->trg->snr;
+		clt->snr_rss += tmp->trg->snr * tmp->trg->snr;
 
-		/*
 		trginfo *t = tmp->trg;
 		int s = (t->start_index - start_time) * fsr;
 		int e = (t->end_index - start_time) * fsr;
@@ -279,17 +285,24 @@ void cluster::info(cltinfo *clt, FLOAT m, FLOAT* imf, int imf_num, int data_size
 		for(int i= 0; i < e-s; i++)
 		{
 
-			clt->snr += *(imf + data_size * id + s +i); 
+			wave[s-start + i] += *(imf + data_size * id + s +i); 
 		}
-		*/
 		
 		tmp = tmp->next;
 	}
-	clt->c_index /= clt->snr;
-	clt->c_amp /= clt->snr;
-	clt->c_freq /= clt->snr;
-	//clt->snr = sqrt(clt->snr);
-	//clt->snr /= m;
+	//start snr_rss
+	clt->c_index /= clt->snr_rss;
+	clt->c_amp /= clt->snr_rss;
+	clt->c_freq /= clt->snr_rss;
+	clt->snr_rss = sqrt(clt->snr_rss);
+	//end snr_rss
+
+	for (int j=0; j < n; j++)
+	{
+		clt->snr += wave[j] * wave[j];
+	}
+	clt->snr = sqrt(clt->snr) / m / MADFACTOR;
+	delete wave;
 }
 
 int cluster::numCluster()
@@ -419,13 +432,13 @@ cltinfo* triggerCluster::getClusteredTrigger(FLOAT th_snr)
 	{
 		tmp->info(&clt[i], median, imf, imf_num, data_size, start_time, fsr);
 
-		int n = (clt[i].end_index - clt[i].start_index) * fsr;
-		FLOAT *wave = new FLOAT[n];
-		int len = getWaveform(i, &wave);
-		FLOAT snr = 0.0;
-		for (int j=0; j < len; j++)
-			snr += wave[j] * wave[j];
-		clt[i].snr = sqrt(snr) / median / MADFACTOR;
+		// int n = (clt[i].end_index - clt[i].start_index) * fsr;
+		// FLOAT *wave = new FLOAT[n];
+		// int len = getWaveform(i, &wave);
+		// FLOAT snr = 0.0;
+		// for (int j=0; j < len; j++)
+		// 	snr += wave[j] * wave[j];
+		// clt[i].snr = sqrt(snr) / median / MADFACTOR;
 
 		if(clt[i].snr >= th_snr)
 		{

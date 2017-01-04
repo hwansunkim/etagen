@@ -19,6 +19,7 @@
 #define __CLUSTER_H__
 
 #include "common.h"
+#define cltinfo_num 15
 
 /* Trigger information structure */
 typedef struct  
@@ -49,7 +50,8 @@ typedef struct
 	FLOAT p_imfindex;       // peak imf id
 	FLOAT p_snr;            // peak snr
 	FLOAT nptr;             // number of triggers
-	FLOAT snr;	            // total snr;
+	FLOAT snr_rss;	        // root sum squared snr
+	FLOAT snr;				// cluster snr from waveform
 }cltinfo;
 
 /* Linked list of Same Cluster */
