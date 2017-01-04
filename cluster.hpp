@@ -92,7 +92,7 @@ public:
 	cluster* clustering(cluster *clt);
 	int show();
 	int numCluster();
-	void info(cltinfo *clt);
+	void info(cltinfo*, FLOAT, FLOAT*, int, int, FLOAT, FLOAT);
 	trgLink* find(FLOAT, FLOAT, FLOAT, FLOAT);
 };
 
@@ -103,6 +103,12 @@ private:
 	cluster *root;
 	FLOAT alpha;
 	FLOAT beta;
+	FLOAT median;
+	FLOAT* imf;
+	int imf_num;
+	int data_size;
+	FLOAT start_time;
+	FLOAT fsr;
 
 public:
 	int numofCluster;
@@ -112,9 +118,9 @@ public:
 	void feed(trginfo*);
 	void feed(cluster*);
 	void show();
-	void set_param(FLOAT, FLOAT);
+	void set_param(FLOAT, FLOAT, FLOAT, FLOAT*, int, int, FLOAT, FLOAT);
 	cltinfo* getClusteredTrigger(FLOAT);
-	int getWaveform(int index, FLOAT**, FLOAT*, int, int, FLOAT, FLOAT);
+	int getWaveform(int index, FLOAT**);
 };
 
 #endif

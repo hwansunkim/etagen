@@ -436,7 +436,11 @@ numeric::array etagen::gen_trgs(numeric::array _utrgs, FLOAT snr_th, FLOAT ttol,
 	PyObject *pyarr = PyArray_FromAny(PyArray_ToList((PyArrayObject*) _utrgs.ptr()), NULL, 0, 0, 0, NULL);
 	trginfo *_trg = (trginfo*) PyArray_DATA(pyarr);
 	cltinfo *clt;
-	tc.set_param(ttol, ftol);
+	npy_intp* shape = PyArray_DIMS(imf.ptr());
+	FLOAT* _imf_series = static_cast<FLOAT *>(PyArray_DATA(imf.ptr()));
+	FLOAT* _time_series = static_cast<FLOAT *>(PyArray_DATA(data.ptr()));
+	
+	tc.set_param(ttol, ftol, med_abs_dev(data_size, _time_series), _imf_series, shape[0], shape[1], start_time, fsr);
 	for(int i=0; i < _ntrgs; i++)
 	{
 		tc.feed(&_trg[i]);
@@ -451,9 +455,7 @@ numeric::array etagen::get_waveform(int index)
 {
 	int len;
 	FLOAT *wave;
-	FLOAT* _imf_series = static_cast<FLOAT *>(PyArray_DATA(imf.ptr()));
-	npy_intp* shape = PyArray_DIMS(imf.ptr());
-	len = tc.getWaveform(index, &wave, _imf_series, shape[0], shape[1], start_time, fsr);
+	len = tc.getWaveform(index, &wave);
 	return DoubleToNumpyArray(len, wave);
 }
 object extrema_(object & a)

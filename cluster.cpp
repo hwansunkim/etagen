@@ -242,7 +242,7 @@ cluster* cluster::clustering(cluster *trg)
 	return NULL;
 }
 
-void cluster::info(cltinfo *clt)
+void cluster::info(cltinfo *clt, FLOAT m, FLOAT* imf, int imf_num, int data_size, FLOAT start_time, FLOAT fsr)
 {
 	clt->start_index = start_index;
 	clt->end_index = end_index;
@@ -269,14 +269,23 @@ void cluster::info(cltinfo *clt)
 		clt->c_index += tmp->trg->peak_index * tmp->trg->snr * tmp->trg->snr;
 		clt->c_amp += tmp->trg->amplitude * tmp->trg->snr * tmp->trg->snr;
 		clt->c_freq += tmp->trg->frequency * tmp->trg->snr * tmp->trg->snr;
-		clt->snr += tmp->trg->snr * tmp->trg->snr;
+
+		trginfo *t = tmp->trg;
+		int s = (t->start_index - start_time) * fsr;
+		int e = (t->end_index - start_time) * fsr;
+		int id = (int)t->id;
+		for(int i= 0; i < e-s; i++)
+		{
+
+			clt->snr += *(imf + data_size * id + s +i); 
+		}
 		
 		tmp = tmp->next;
 	}
 	clt->c_index /= clt->snr;
 	clt->c_amp /= clt->snr;
 	clt->c_freq /= clt->snr;
-	clt->snr = sqrt(clt->snr);
+	clt->snr /= m;
 }
 
 int cluster::numCluster()
@@ -383,10 +392,16 @@ void triggerCluster::show()
 	}
 }
 
-void triggerCluster::set_param(FLOAT a, FLOAT b)
+void triggerCluster::set_param(FLOAT a, FLOAT b, FLOAT m, FLOAT* imf_, int imf_num_, int data_size_, FLOAT start_time_, FLOAT fsr_)
 {
 	alpha = a;
 	beta = b;
+	median = m;
+	imf = imf_;
+	imf_num = imf_num_;
+	data_size = data_size_;
+	start_time = start_time_;
+	fsr = fsr_;
 }
 
 cltinfo* triggerCluster::getClusteredTrigger(FLOAT th_snr)
@@ -398,7 +413,7 @@ cltinfo* triggerCluster::getClusteredTrigger(FLOAT th_snr)
 	int i = 0;
 	while(tmp != NULL)
 	{
-		tmp->info(&clt[i]);
+		tmp->info(&clt[i], median, imf, imf_num, data_size, start_time, fsr);
 		if(clt[i].snr >= th_snr)
 		{
 			i++;
@@ -410,7 +425,7 @@ cltinfo* triggerCluster::getClusteredTrigger(FLOAT th_snr)
 	return clt;
 }
 
-int triggerCluster::getWaveform(int index, FLOAT **ret, FLOAT* imf, int imf_num, int data_size, FLOAT start_time, FLOAT fsr )
+int triggerCluster::getWaveform(int index, FLOAT **ret)
 {
 	trgLink *trg = root->find(clt[index].start_index, clt[index].end_index, clt[index].fmin, clt[index].fmax);
 	//trg->show();
