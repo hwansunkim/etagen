@@ -533,63 +533,119 @@ BOOST_PYTHON_MODULE(_etagen)
 	               "EtaGen class",
 		       init<object &, FLOAT, FLOAT>((arg("data")=none,
 			       arg("fsr")=1.0, arg("start_time")=0.0),
-			   "construct an EtaGen instance"
+			   "construct an EtaGen instance\n"
+			   "USAGE (an example):\n"
+			   "    h = etagen.etagen(data, fsr, start_time)\n"
+			   "arguments:\n"
+			   "    data          input data which is assumed to be whitened\n"
+			   "    fsr           sampling frequency\n"
+			   "    start_time    start time of data in sec.\n"
+			   "return:\n"
+			   "    h             an instance of etagen class\n"
+			   "attribute stored:\n"
+			   "    h.data\n"
+			   "    h.fsr\n"
+			   "    h.start_time\n"
+			   "example:\n"
+			   ">>> import numpy as np\n"
+			   ">>> from etagen import etagen\n"
+			   ">>> h = etagen(np.random.randn(1024),32)\n"
+			   ">>> print h.fsr\n"
+			   "32.0\n"
+			   ">>> print h.start_time\n"
+			   "0.0\n"
 			   )
 	    )
 	.def_readonly("start_time", &etagen::start_time,
-	    "start time of input data"
+	    "start time of input data\n"
 	    )
 	.def_readonly("fsr",        &etagen::fsr,
-	    "sampling rate"
+	    "sampling rate\n"
 	    )
 	.def_readonly("data_len",       &etagen::data_size,
-	    "Length of the input data"
+	    "Length of the input data\n"
 	    )
 	.def_readonly("nimfs",       &etagen::numberofimf,
-	    "Number of IMFs"
+	    "Number of IMFs\n"
 	    )
 	.def_readonly("data",       &etagen::data,
-	    "input data"
+	    "input data\n"
 	    )
 	.def_readonly("imfs",       &etagen::imf,
-	    "IMF time series (EMD)"
+	    "IMF time series (EMD)\n"
 	    )
 	.def_readonly("res",        &etagen::res,
-	    "residual time series"
+	    "residual time series\n"
 	    )
 	.def_readonly("hht",        &etagen::hht,
-	    "HHT time series (EMD + HSA)"
+	    "HHT time series (EMD + HSA)\n"
 	    )
 	.def_readonly("insa",       &etagen::insa,
-	    "instantaneous amplitude of each IMFs"
+	    "instantaneous amplitude of each IMFs\n"
 	    )
 	.def_readonly("insf",       &etagen::insf,
-	    "instantaneous frequency of each IMFs"
+	    "instantaneous frequency of each IMFs\n"
 	    )
 	.def_readwrite("utrgs",      &etagen::utrgs,
-	    "preliminary (unclustered) triggers"
+	    "preliminary (unclustered) triggers\n"
 	    )
 	.def_readwrite("trgs",       &etagen::trgs,
-	    "(clustered) triggers"
+	    "(clustered) triggers\n"
 	    )
 	.def("set_start_time",      &etagen::set_start_time,
-	    ""
+	    "(re)set the start time of self.data\n"
+	    "example:\n"
+	    ">>> import numpy as np\n"
+	    ">>> from etagen import etagen\n"
+	    ">>> h = etagen(np.random.randn(1024))\n"
+	    ">>> print h.start_time\n"
+	    "0.0\n"
+	    ">>> h.set_start_time(10)\n"
+	    ">>> print h.start_time\n"
+	    "10.0\n"
 	    )
 	.def("set_fsr",             &etagen::set_fsr,
-	    ""
+	    "(re)set the sampling frequency of self.data\n"
+	    "example:\n"
+	    ">>> import numpy as np\n"
+	    ">>> from etagen import etagen\n"
+	    ">>> h = etagen(np.random.randn(1024))\n"
+	    ">>> print h.fsr\n"
+	    "1.0\n"
+	    ">>> h.set_fsr(32)\n"
+	    ">>> print h.fsr\n"
+	    "32.0\n"
 	    )
 	.def("set_emd_param",       &etagen::set_emd_param,
 	    (arg("num_imfs")=0, arg("num_sifts")=MAX_SIFT,
 	       arg("S_number")=0, arg("monotonic_spline")=0,
 	       arg("emd_size")=2048, arg("num_seg")=8,
 	       arg("w_type")=sin_kernel),
-	    ""
+	    "(re)set the parameters for (wS)EMD\n"
+	    "arguments:\n"
+	    "    num_imfs     number of IMFs to be obtained\n"
+	    "    num_sifts    maximum number of siftings to obtain each IMF\n"
+	    "    S_number     criterion to stop sifting,\n"
+	    "                 (number of extrema) - (number of zero-crossings) <= S_number\n"
+	    "    emd_size     (for wSEMD) number of data samples in each EMD segments\n"
+	    "    num_seg      (for wSEMD) number of segments to average out the IMFs\n"
+	    "    w_type       (for wSEMD) type of weighting kernel\n"
+	    "                 (see docstring of etagen.kernel)\n"
 	    )
 	.def("show_emd_param",      &etagen::show_emd_param,
-	    ""
+	    "show the parameters for (wS)EMD\n"
 	    )
 	.def("set_data",            &etagen::set_data,
-	    ""
+	    "(re)set the input data"
+	    "example:\n"
+	    ">>> import numpy as np\n"
+	    ">>> from etagen import etagen\n"
+	    ">>> h = etagen(np.random.randn(1024))\n"
+	    ">>> print h.data.shape\n"
+	    "(1024,)\n"
+	    ">>> h.set_data(np.random.randn(32))\n"
+	    ">>> print h.data.shape\n"
+	    "(32,)\n"
 	    )
 	//.def("add_data",            &etagen::add_data,
 	//    ""
@@ -598,55 +654,68 @@ BOOST_PYTHON_MODULE(_etagen)
 	//    ""
 	//    )
 	.def("emd",                 &etagen::emd_,
-	    ""
+	    "decompose self.data into IMFs by EMD\n"
+	    "(parameters are set by self.set_emd_parameter)\n"
 	    )
 	.def("wsemd",               &etagen::wsemd_,
-	    ""
+	    "decompose self.data into IMFs by wSEMD\n"
+	    "(parameters are set by self.set_emd_parameter)\n"
 	    )
 	.def("set_imf",             &etagen::set_imf,
-	    ""
+	    "set or replace IMFs\n"
 	    )
 	//.def("get_imf",             &etagen::get_imf,
 	//    ""
 	//    )
 	.def("set_res",             &etagen::set_res,
-	    ""
+	    "(re)set the residual\n"
 	    )
 	.def("hilbert",             &etagen::hilbert_,
 	    (arg("filter_length")=MIN_DHT_FILTER_LENGTH, arg("stride")=MIN_STRIDE),
-	    ""
+	    "Hilbert spectral analysis\n"
+	    "arguments:\n"
+	    "    filter_length    length of FIR filter for DHT\n"
+	    "    stride           number of samples to estimate instantaneous frequency\n"
+	    "attribute stored:\n"
+	    "    h.hht            Hilbert-transformed IMFs\n"
+	    "    h.insa           instantaneous amplitudes of IMFs\n"
+	    "    h.insf           instantaneous frequnecies of IMFs\n"
 	    )
 	.def("set_hht",             &etagen::set_hht,
-	    ""
+	    "(re)set the Hilbert-transformed IMFs\n"
 	    )
 	//.def("get_hht",             &etagen::get_hht,
 	//    ""
 	//    )
 	.def("set_insa",            &etagen::set_insa,
-	    ""
+	    "(re)set the instantaneous amplitudes of IMFs\n"
 	    )
 	//.def("get_insa",            &etagen::get_insa,
 	//    ""
 	//    )
 	.def("set_insf",            &etagen::set_insf,
-	    ""
+	    "(re)set the instantaneous frequencies of IMFs\n"
 	    )
 	//.def("get_insf",            &etagen::get_insf,
 	//    ""
 	//    )
 	.def("gen_utrgs",           &etagen::gen_utrgs,
 	    (arg("snr_threshold")=DEFAULT_SNR_THRESHOLD, arg("start")=0, arg("length")=0),
-	    ""
+	    "METHOD FOR THE INTERNAL USE\n"
 	    )
 	//.def("get_utrgs",           &etagen::get_utrgs,
 	//    ""
 	//    )
 	.def("gen_trgs",            &etagen::gen_trgs,
 	    (arg("triggers"), arg("snr_threshold")=DEFAULT_SNR_THRESHOLD, arg("t_tolerance")=0, arg("f_tolerance")=0),
-	    ""
+	    "METHOD FOR THE INTERNAL USE\n"
 	    )
 	.def("get_waveform",            &etagen::get_waveform,
-	   ""
+	   "reconstruct the waveform of the *indx*-th trigger\n"
+	   "arguments:\n"
+	   "    indx    the index of the trigger to reconstruct the waveform\n"
+	   "return type:\n"
+	   "    Numbpy ndarray type"
 	   )
 	;
 }
