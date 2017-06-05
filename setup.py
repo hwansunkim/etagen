@@ -16,11 +16,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-"""
-Etagen - An event trigger generator based on Hilbert-Huang Transform.
-It is a Python module but the core library of EtaGen is built in C/C++
-"""
-
 from distutils.core import setup, Extension
 import numpy as np
 import sys

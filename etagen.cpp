@@ -15,6 +15,62 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+/**
+ * @package EtaGen
+ * # EtaGen
+ * An event trigger generator based on Hilbert-Huang Transform<br>
+ * It is a Python module but the core library of EtaGen is built in C/C++
+ *
+ * ## Sample USAGE:
+ * * This shows how to generate event triggers from *data* by EtaGen<br>
+ *     >>> from etagen import etagen, kernel
+ *
+ *     >>> h = etagen(data, fsr=1024)
+ *
+ *     >>> h.set_emd_param(num_imfs=8, num_sifts=15, S_number=1, emd_size=1024, num_seg=4, w_type=kernel.SIN_KERNEL)
+ *
+ *     >>> h.show_emd_param()<br>
+ *     Parameters are set as follows.<br>
+ *     [General]<br>
+ *     Number of IMFs: 8<br>
+ *     Number of siftings:     15<br>
+ *     S-Number:       1<br>
+ *     [wSEMD settings]<br>
+ *     EMD size:       1024<br>
+ *     Number of segments:     4
+ *
+ *     >>> h.wsemd()
+ *
+ *     >>> h.hilbert(filter_length=128, stride=1024)
+ *
+ *     >>> h.get_utriggers(snr_th=5, stride=4*fsr, overlap=2*fsr)<br>
+ *     Generating triggers with 5-snr threshold in segments of length 4096, overlapping 2048 samples and skipping 0 samples from boundaries...<br>
+ *     ... generated 25 trigger event(s)
+ *
+ *     >>> h.get_triggers(t_tolerance=0.001, f_tolerance=0.5, snr_th=5.5)<br>
+ *     u_snr_th should be larger than the one used to generate triggers: assuming u_snr_th = 5<br>
+ *     Clustering triggers of u_snr > 5 with time tolerance=0.001, frequency tolerance=0.5 and dropping clusters of snr < 5.5...<br>
+ *     total Clusters : 25 > 5.500000<br>
+ *     total Clusters : 12 > 5.500000<br>
+ *     ... generated 12 trigger cluster(s)
+ *
+ *     >>> h.trgs[['c_time','c_freq','p_time','p_freq','npts','snr']]<br>
+ *     array([ (0.041015625, 297.67912076702106, 0.041015625, 297.67912076702106, 1, 5.546819634000152),<br>
+ *     (0.6464843749999999, 344.6262005898434, 0.646484375, 344.6262005898434, 1, 5.797973757254617),<br>
+ *     (1.2744140625, 260.1084208607948, 1.2744140625, 260.1084208607948, 1, 5.546288486345601),<br>
+ *     (1.5664062499999998, 142.61211763115602, 1.56640625, 142.61211763115602, 1, 6.513913449375204),<br>
+ *     (1.8193359374999998, 333.3958253278954, 1.8193359375, 333.39582532789547, 1, 6.632835601773412),<br>
+ *     (2.7138671875, 341.5032411355364, 2.7138671875, 341.5032411355364, 1, 6.609969624271628),<br>
+ *     (4.1552734375, 220.52834605967874, 4.1552734375, 220.5283460596787, 1, 5.8852032771220015),<br>
+ *     (4.493164062499999, 201.227897198888, 4.4931640625, 201.22789719888803, 1, 5.890950833813454),<br>
+ *     (5.766601562500001, 229.12911997930595, 5.7666015625, 229.12911997930595, 1, 5.557695477749056),<br>
+ *     (6.659179687499999, 245.8274380780258, 6.6591796875, 245.8274380780258, 1, 5.8990177018284875),<br>
+ *     (6.328125, 34.86349503817338, 6.328125, 34.86349503817338, 1, 5.834112766561207),<br>
+ *     (6.0, 67.39566743927662, 6.0, 67.39566743927662, 1, 5.9916237288573955)], <br>
+ *     type=[('c_time', '<f8'), ('c_freq', '<f8'), ('p_time', '<f8'), ('p_freq', '<f8'), ('npts', '<i8'), ('snr', '<f8')])
+ *
+ */
+
 #include <boost/python.hpp>
 #include <numpy/ndarrayobject.h>
 #include <vector>
@@ -92,6 +148,39 @@ numeric::array DoubleToNumpyArray( int nd, int s, CFLOAT *data )
 	return pyArray_FromData(2, size, data);
 }
 
+/**@class etagen
+ * EtaGen class
+ *
+ * USAGE (an example):<br>
+ *     h = etagen.etagen(data, fsr, start_time)
+ *
+ * arguments:<br>
+ *     data          input data which is assumed to be whitened<br>
+ *     fsr           sampling frequency<br>
+ *     start_time    start time of data in sec.
+ *
+ * return:<br>
+ *     h             an instance of etagen class<br>
+ *
+ * attribute stored:<br>
+ *     h.data<br>
+ *     h.fsr<br>
+ *     h.start_time
+ *
+ * example:<br>
+ *     >>> import numpy as np
+ *
+ *     >>> from etagen import etagen
+ *
+ *     >>> h = etagen(np.random.randn(1024),32)
+ *
+ *     >>> print h.fsr<br>
+ *     32.0
+ *
+ *     >>> print h.start_time<br>
+ *     0.0
+ *
+ */
 class etagen
 {
 	private:
@@ -188,6 +277,19 @@ class etagen
 		//object& get_trgs;
 };
 
+/** (re)set the parameters for (wS)EMD
+ *
+ * arguments:<br>
+ *     num_imfs     number of IMFs to be obtained<br>
+ *     num_sifts    maximum number of siftings to obtain each IMF<br>
+ *     S_number     criterion to stop sifting,<br>
+ *                  (number of extrema) - (number of zero-crossings) <= S_number<br>
+ *     emd_size     (for wSEMD) number of data samples in each EMD segments<br>
+ *     num_seg      (for wSEMD) number of segments to average out the IMFs<br>
+ *     w_type       (for wSEMD) type of weighting kernel<br>
+ *                  (see docstring of etagen.kernel)<br>
+ *
+ */
 void etagen::set_emd_param(int num_imfs, int num_sifts, int S_number,
 		   int monotonic_spline, int emd_size, int num_seg, int w_type)
 {
@@ -205,6 +307,9 @@ void etagen::set_emd_param(int num_imfs, int num_sifts, int S_number,
 	weightfunction(weight, numberofbuf * bufoffset, weight_type, alpha);
 }
 
+/** show the parameters for (wS)EMD
+ *
+ */
 void etagen::show_emd_param()
 {
 	std::stringstream msg;
@@ -219,6 +324,24 @@ void etagen::show_emd_param()
 	PySys_WriteStdout("%s", msg.str().c_str());
 }
 
+/** (re)set the input data
+ *
+ * example:<br>
+ *     >>> import numpy as np
+ *
+ *     >>> from etagen import etagen
+ *
+ *     >>> h = etagen(np.random.randn(1024))
+ *
+ *     >>> print h.data.shape<br>
+ *     (1024,)
+ *
+ *     >>> h.set_data(np.random.randn(32))
+ *
+ *     >>> print h.data.shape<br>
+ *     (32,)
+ *
+ */
 void etagen::set_data(object & a)
 {
 	if (PyArray_NDIM(a.ptr()) != 1)
@@ -231,6 +354,9 @@ void etagen::set_data(object & a)
 	data_size = PyArray_Size(getArray(a.ptr()));
 }
 
+/** set or replace IMFs
+ *
+ */
 void etagen::set_imf(object & a)
 {
 	if (PyArray_NDIM(a.ptr()) != 2)
@@ -250,6 +376,9 @@ void etagen::set_imf(object & a)
 	imfbuf_size = data_size * numberofimf;
 }
 
+/** (re)set the residual
+ *
+ */
 void etagen::set_res(object & a)
 {
 	if (PyArray_NDIM(a.ptr()) != 1)
@@ -267,6 +396,9 @@ void etagen::set_res(object & a)
 	res = a;
 }
 
+/** (re)set the Hilbert-transformed IMFs
+ *
+ */
 void etagen::set_hht(object & a)
 {
 	if (PyArray_NDIM(a.ptr()) != 2)
@@ -284,6 +416,9 @@ void etagen::set_hht(object & a)
 	hht = a;
 }
 
+/** (re)set the instantaneous amplitudes of IMFs
+ *
+ */
 void etagen::set_insa(object & a)
 {
 	if (PyArray_NDIM(a.ptr()) != 2)
@@ -301,6 +436,9 @@ void etagen::set_insa(object & a)
 	insa = a;
 }
 
+/** (re)set the instantaneous frequencies of IMFs
+ *
+ */
 void etagen::set_insf(object & a)
 {
 	if (PyArray_NDIM(a.ptr()) != 2)
@@ -318,6 +456,10 @@ void etagen::set_insf(object & a)
 	insf = a;
 }
 
+/** decompose self.data into IMFs by EMD<br>
+ * (parameters are set by self.set_emd_parameter)
+ *
+ */
 void etagen::emd_()
 {
 	FLOAT* _time_series = static_cast<FLOAT *>(PyArray_DATA(data.ptr()));
@@ -330,6 +472,10 @@ void etagen::emd_()
 	imfbuf_size = data_size * numberofimf;
 }
 
+/** decompose self.data into IMFs by wSEMD<br>
+ * (parameters are set by self.set_emd_parameter)
+ *
+ */
 void etagen::wsemd_()
 {
 	int emd_size = numberofbuf * bufoffset;	//emd slide size
@@ -345,6 +491,18 @@ void etagen::wsemd_()
 	imfbuf_size = data_size * numberofimf;
 }
 
+/** Hilbert spectral analysis
+ *
+ * arguments:<br>
+ *     filter_length    length of FIR filter for DHT<br>
+ *     stride           number of samples to estimate instantaneous frequency
+ *
+ * attribute stored:<br>
+ *     h.hht            Hilbert-transformed IMFs<br>
+ *     h.insa           instantaneous amplitudes of IMFs<br>
+ *     h.insf           instantaneous frequnecies of IMFs
+ *
+ */
 void etagen::hilbert_(int _filter_len, int _stride)
 {
 	npy_intp* shape = PyArray_DIMS(imf.ptr());
@@ -393,6 +551,9 @@ void etagen::hilbert_(int _filter_len, int _stride)
 	free(_dht_frequency);
 }
 
+/** METHOD FOR THE INTERNAL USE
+ *
+ */
 list etagen::gen_utrgs(FLOAT snr_th, int sidx, int len)
 {
 	list ret;
@@ -429,6 +590,9 @@ list etagen::gen_utrgs(FLOAT snr_th, int sidx, int len)
 	return ret;
 }
 
+/** METHOD FOR THE INTERNAL USE
+ *
+ */
 numeric::array etagen::gen_trgs(numeric::array _utrgs, FLOAT snr_th, FLOAT ttol, FLOAT ftol)
 {
 	npy_intp _ntrgs = PyArray_SIZE(_utrgs.ptr());
@@ -451,6 +615,15 @@ numeric::array etagen::gen_trgs(numeric::array _utrgs, FLOAT snr_th, FLOAT ttol,
 	return DoubleToNumpyArray(tc.numofCluster, cltinfo_num, (FLOAT*)clt);
 }
 
+/** reconstruct the waveform of the *indx*-th trigger
+ *
+ * arguments:<br>
+ *     indx    the index of the trigger to reconstruct the waveform
+ *
+ * return type:<br>
+ *     Numpy ndarray type
+ *
+ */
 numeric::array etagen::get_waveform(int index)
 {
 	int len;
@@ -715,7 +888,7 @@ BOOST_PYTHON_MODULE(_etagen)
 	   "arguments:\n"
 	   "    indx    the index of the trigger to reconstruct the waveform\n"
 	   "return type:\n"
-	   "    Numbpy ndarray type"
+	   "    Numpy ndarray type"
 	   )
 	;
 }
