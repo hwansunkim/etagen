@@ -4,6 +4,7 @@ It is a Python module but the core library of EtaGen is built in C/C++
 
 ## Sample USAGE:
 * This shows how to generate event triggers from *data* by EtaGen<br>
+```
     >>> from etagen import etagen, kernel
 
     >>> h = etagen(data, fsr=1024)
@@ -49,4 +50,4 @@ It is a Python module but the core library of EtaGen is built in C/C++
        (6.328125, 34.86349503817338, 6.328125, 34.86349503817338, 1, 5.834112766561207),<br>
        (6.0, 67.39566743927662, 6.0, 67.39566743927662, 1, 5.9916237288573955)], <br>
       dtype=[('c_time', '<f8'), ('c_freq', '<f8'), ('p_time', '<f8'), ('p_freq', '<f8'), ('npts', '<i8'), ('snr', '<f8')])
-
+```
