@@ -1,54 +1,76 @@
-An event trigger generator based on Hilbert-\/\-Huang Transform\par
- It is a Python module but the core library of \hyperlink{namespaceEtaGen}{Eta\-Gen} is built in C/\-C++
+An event trigger generator based on Hilbert-\/\+Huang Transform~\newline
+ It is a Python module but the core library of Eta\+Gen is built in C/\+C++
 
-\subsection*{Sample U\-S\-A\-G\-E\-:}
+\subsection*{Dependences}
 
 
 \begin{DoxyItemize}
-\item This shows how to generate event triggers from {\itshape data} by \hyperlink{namespaceEtaGen}{Eta\-Gen}\par
- $>$$>$$>$ from etagen import etagen, kernel
+\item Numpy $>$= 1.\+10
+\item Boost.\+Python $<$ 1.\+65 or $>$= 1.\+64 with Boost.\+Numpy
+\end{DoxyItemize}
 
-$>$$>$$>$ h = etagen(data, fsr=1024)
+\#\# Install 
+\begin{DoxyCode}
+1 $ python setup.py install --user
+\end{DoxyCode}
 
-$>$$>$$>$ h.\-set\-\_\-emd\-\_\-param(num\-\_\-imfs=8, num\-\_\-sifts=15, S\-\_\-number=1, emd\-\_\-size=1024, num\-\_\-seg=4, w\-\_\-type=kernel.\-S\-I\-N\-\_\-\-K\-E\-R\-N\-E\-L)
 
-$>$$>$$>$ h.\-show\-\_\-emd\-\_\-param()\par
- Parameters are set as follows.\par
- \mbox{[}General\mbox{]}\par
- Number of I\-M\-Fs\-: 8\par
- Number of siftings\-: 15\par
- S-\/\-Number\-: 1\par
- \mbox{[}w\-S\-E\-M\-D settings\mbox{]}\par
- E\-M\-D size\-: 1024\par
- Number of segments\-: 4
+\subsection*{Sample U\+S\+A\+GE\+:}
 
-$>$$>$$>$ h.\-wsemd()
 
-$>$$>$$>$ h.\-hilbert(filter\-\_\-length=128, stride=1024)
-
-$>$$>$$>$ h.\-get\-\_\-utriggers(snr\-\_\-th=5, stride=4$\ast$fsr, overlap=2$\ast$fsr)\par
- Generating triggers with 5-\/snr threshold in segments of length 4096, overlapping 2048 samples and skipping 0 samples from boundaries...\par
- ... generated 25 trigger event(s)
-
-$>$$>$$>$ h.\-get\-\_\-triggers(t\-\_\-tolerance=0.\-001, f\-\_\-tolerance=0.\-5, snr\-\_\-th=5.\-5)\par
- u\-\_\-snr\-\_\-th should be larger than the one used to generate triggers\-: assuming u\-\_\-snr\-\_\-th = 5\par
- Clustering triggers of u\-\_\-snr $>$ 5 with time tolerance=0.\-001, frequency tolerance=0.\-5 and dropping clusters of snr $<$ 5.\-5...\par
- total Clusters \-: 25 $>$ 5.\-500000\par
- total Clusters \-: 12 $>$ 5.\-500000\par
- ... generated 12 trigger cluster(s)
-
-$>$$>$$>$ h.\-trgs\mbox{[}\mbox{[}'c\-\_\-time','c\-\_\-freq','p\-\_\-time','p\-\_\-freq','npts','snr'\mbox{]}\mbox{]}\par
- array(\mbox{[} (0.\-041015625, 297.\-67912076702106, 0.\-041015625, 297.\-67912076702106, 1, 5.\-546819634000152),\par
- (0.\-6464843749999999, 344.\-6262005898434, 0.\-646484375, 344.\-6262005898434, 1, 5.\-797973757254617),\par
- (1.\-2744140625, 260.\-1084208607948, 1.\-2744140625, 260.\-1084208607948, 1, 5.\-546288486345601),\par
- (1.\-5664062499999998, 142.\-61211763115602, 1.\-56640625, 142.\-61211763115602, 1, 6.\-513913449375204),\par
- (1.\-8193359374999998, 333.\-3958253278954, 1.\-8193359375, 333.\-39582532789547, 1, 6.\-632835601773412),\par
- (2.\-7138671875, 341.\-5032411355364, 2.\-7138671875, 341.\-5032411355364, 1, 6.\-609969624271628),\par
- (4.\-1552734375, 220.\-52834605967874, 4.\-1552734375, 220.\-5283460596787, 1, 5.\-8852032771220015),\par
- (4.\-493164062499999, 201.\-227897198888, 4.\-4931640625, 201.\-22789719888803, 1, 5.\-890950833813454),\par
- (5.\-766601562500001, 229.\-12911997930595, 5.\-7666015625, 229.\-12911997930595, 1, 5.\-557695477749056),\par
- (6.\-659179687499999, 245.\-8274380780258, 6.\-6591796875, 245.\-8274380780258, 1, 5.\-8990177018284875),\par
- (6.\-328125, 34.\-86349503817338, 6.\-328125, 34.\-86349503817338, 1, 5.\-834112766561207),\par
- (6.\-0, 67.\-39566743927662, 6.\-0, 67.\-39566743927662, 1, 5.\-9916237288573955)\mbox{]}, \par
- dtype=\mbox{[}('c\-\_\-time', '$<$f8'), ('c\-\_\-freq', '$<$f8'), ('p\-\_\-time', '$<$f8'), ('p\-\_\-freq', '$<$f8'), ('npts', '$<$i8'), ('snr', '$<$f8')\mbox{]}) 
+\begin{DoxyItemize}
+\item This shows how to generate event triggers from {\itshape data} by Eta\+Gen~\newline
+ 
+\begin{DoxyCode}
+1 >>> from etagen import etagen, kernel
+2 
+3 >>> h = etagen(data, fsr=1024)
+4 
+5 >>> h.set\_emd\_param(num\_imfs=8, num\_sifts=15, S\_number=1, emd\_size=1024, num\_seg=4,
+       w\_type=kernel.SIN\_KERNEL)
+6 
+7 >>> h.show\_emd\_param()<br>
+8 Parameters are set as follows.<br>
+9 [General]<br>
+10 Number of IMFs: 8<br>
+11 Number of siftings:     15<br>
+12 S-Number:       1<br>
+13 [wSEMD settings]<br>
+14 EMD size:       1024<br>
+15 Number of segments:     4
+16 
+17 >>> h.wsemd()
+18 
+19 >>> h.hilbert(filter\_length=128, stride=1024)
+20 
+21 >>> h.get\_utriggers(snr\_th=5, stride=4*fsr, overlap=2*fsr)<br>
+22 Generating triggers with 5-snr threshold in segments of length 4096, overlapping 2048 samples and skipping
+       0 samples from boundaries...<br>
+23 ... generated 25 trigger event(s)
+24 
+25 >>> h.get\_triggers(t\_tolerance=0.001, f\_tolerance=0.5, snr\_th=5.5)<br>
+26 u\_snr\_th should be larger than the one used to generate triggers: assuming u\_snr\_th = 5<br>
+27 Clustering triggers of u\_snr > 5 with time tolerance=0.001, frequency tolerance=0.5 and dropping clusters
+       of snr < 5.5...<br>
+28 total Clusters : 25 > 5.500000<br>
+29 total Clusters : 12 > 5.500000<br>
+30 ... generated 12 trigger cluster(s)
+31 
+32 >>> h.trgs[['c\_time','c\_freq','p\_time','p\_freq','npts','snr']]<br>
+33 array([ (0.041015625, 297.67912076702106, 0.041015625, 297.67912076702106, 1, 5.546819634000152),<br>
+34    (0.6464843749999999, 344.6262005898434, 0.646484375, 344.6262005898434, 1, 5.797973757254617),<br>
+35    (1.2744140625, 260.1084208607948, 1.2744140625, 260.1084208607948, 1, 5.546288486345601),<br>
+36    (1.5664062499999998, 142.61211763115602, 1.56640625, 142.61211763115602, 1, 6.513913449375204),<br>
+37    (1.8193359374999998, 333.3958253278954, 1.8193359375, 333.39582532789547, 1, 6.632835601773412),<br>
+38    (2.7138671875, 341.5032411355364, 2.7138671875, 341.5032411355364, 1, 6.609969624271628),<br>
+39    (4.1552734375, 220.52834605967874, 4.1552734375, 220.5283460596787, 1, 5.8852032771220015),<br>
+40    (4.493164062499999, 201.227897198888, 4.4931640625, 201.22789719888803, 1, 5.890950833813454),<br>
+41    (5.766601562500001, 229.12911997930595, 5.7666015625, 229.12911997930595, 1, 5.557695477749056),<br>
+42    (6.659179687499999, 245.8274380780258, 6.6591796875, 245.8274380780258, 1, 5.8990177018284875),<br>
+43    (6.328125, 34.86349503817338, 6.328125, 34.86349503817338, 1, 5.834112766561207),<br>
+44    (6.0, 67.39566743927662, 6.0, 67.39566743927662, 1, 5.9916237288573955)], <br>
+45   dtype=[('c\_time', '<f8'), ('c\_freq', '<f8'), ('p\_time', '<f8'), ('p\_freq', '<f8'), ('npts', '<i8'),
+       ('snr', '<f8')])
+\end{DoxyCode}
+ 
 \end{DoxyItemize}

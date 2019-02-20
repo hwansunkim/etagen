@@ -2,6 +2,15 @@
 An event trigger generator based on Hilbert-Huang Transform<br>
 It is a Python module but the core library of EtaGen is built in C/C++
 
+## Dependences
+* Numpy >= 1.10
+* Boost.Python < 1.65 or >= 1.64 with Boost.Numpy
+
+## Install
+```
+	$ python setup.py install --user
+```
+
 ## Sample USAGE:
 * This shows how to generate event triggers from *data* by EtaGen<br>
 ```
