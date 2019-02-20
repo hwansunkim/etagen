@@ -123,6 +123,7 @@ public:
 	void set_param(FLOAT, FLOAT, FLOAT, FLOAT*, int, int, FLOAT, FLOAT);
 	cltinfo* getClusteredTrigger(FLOAT);
 	int getWaveform(int index, FLOAT**);
+	int getWaveform(long index, FLOAT**);
 };
 
 #endif

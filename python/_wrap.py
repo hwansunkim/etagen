@@ -16,11 +16,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-import _etagen
+import etagen._etagen
 from numpy import array, arange, hstack, vstack, loadtxt, median
 from matplotlib.pyplot import scatter
 
-class etagen(_etagen.etagen):
+class etagen(etagen._etagen.etagen):
 	# dtype for trigger informations
 	utrg_dtype = [('imf_idx',int), ('s_time',float), ('e_time',float), ('p_time',float), ('p_amp',float), ('p_freq',float), ('f_min',float), ('f_max',float), ('snr',float)]
 
@@ -68,7 +68,7 @@ class etagen(_etagen.etagen):
 		self.trg_skip = skip
 		self.trg_stride = stride
 		self.trg_overlap = overlap
-		print "Generating triggers with {0}-snr threshold in segments of length {1}, overlapping {2} samples and skipping {3} samples from boundaries...".format(snr_th, stride, overlap, skip)
+		print("Generating triggers with {0}-snr threshold in segments of length {1}, overlapping {2} samples and skipping {3} samples from boundaries...".format(snr_th, stride, overlap, skip))
 		# imf_idx, s_time, e_time, p_time, p_amp, p_freq, f_min, f_max, snr
 		self.utrgs = array([], dtype=etagen.utrg_dtype)#.reshape(0,1)
 		for j in range(skip, self.data_len-skip-overlap, stride-overlap):
@@ -88,9 +88,9 @@ class etagen(_etagen.etagen):
 				_trgs = _trgs[_trgs[:,3] < stride - overlap/2]
 			_trgs[:,1:4] /= self.fsr
 			_trgs[:,1:4] += self.start_time + float(j)/self.fsr
-			self.utrgs = hstack((self.utrgs, array(zip(_trgs[:,0].astype(int), _trgs[:,1], _trgs[:,2], _trgs[:,3], _trgs[:,4], _trgs[:,5], _trgs[:,6], _trgs[:,7], _trgs[:,8]), dtype=etagen.utrg_dtype)))
+			self.utrgs = hstack((self.utrgs, array(list(zip(_trgs[:,0].astype(int), _trgs[:,1], _trgs[:,2], _trgs[:,3], _trgs[:,4], _trgs[:,5], _trgs[:,6], _trgs[:,7], _trgs[:,8])), dtype=etagen.utrg_dtype)))
 		self.utrgs.sort(order=['imf_idx', 'p_time'])
-		print "... generated %i trigger event(s)" % (self.utrgs.shape[0])
+		print("... generated %i trigger event(s)" % (self.utrgs.shape[0]))
 
 	def get_utriggers_from_file(self, trg_file, **kwargs):
 		"""
@@ -112,7 +112,7 @@ class etagen(_etagen.etagen):
 		# imf_idx, s_time, e_time, p_time, p_amp, p_freq, f_min, f_max, snr
 		self.utrgs = loadtxt(trg_file, dtype=etagen.utrg_dtype, **kwargs)
 		self.min_snr = int(self.utrgs['snr'].min())
-		print "... read %i trigger event(s)" % (self.utrgs.shape[0])
+		print("... read %i trigger event(s)" % (self.utrgs.shape[0]))
 
 	def get_triggers(self, snr_th=10, t_tolerance=0., f_tolerance=0., u_snr_th=3):
 		"""
@@ -144,21 +144,21 @@ class etagen(_etagen.etagen):
 		if self.utrgs is None:
 			self.get_utriggers(snr_th=u_snr_th)
 		if u_snr_th < self.min_snr:
-			print "u_snr_th should be larger than the one used to generate triggers: assuming u_snr_th =", self.min_snr
+			print("u_snr_th should be larger than the one used to generate triggers: assuming u_snr_th = {}".format(self.min_snr))
 			self.u_snr_threshold = self.min_snr
 		else:
 			self.u_snr_threshold = u_snr_th
 		self.snr_threshold = snr_th
 		#self.waveforms = []
-		print "Clustering triggers of u_snr > {0} with time tolerance={1}, frequency tolerance={2} and dropping clusters of snr < {3}...".format(self.u_snr_threshold, t_tolerance, f_tolerance, snr_th)
+		print("Clustering triggers of u_snr > {0} with time tolerance={1}, frequency tolerance={2} and dropping clusters of snr < {3}...".format(self.u_snr_threshold, t_tolerance, f_tolerance, snr_th))
 		# s_time, e_time, c_time, c_freq, c_energy, p_time, p_freq, p_amp, p_imf_idx, p_snr, npts, snr
 
 		carg = self.utrgs['snr']>=self.u_snr_threshold
 		utrgs = self.utrgs[carg]
 
 		_trgs = self.gen_trgs(utrgs, snr_threshold=self.snr_threshold, t_tolerance=t_tolerance, f_tolerance=f_tolerance)
-		self.trgs = array(zip(_trgs[:,0], _trgs[:,1], _trgs[:,4], _trgs[:,6], _trgs[:,5], _trgs[:,7], _trgs[:,9], _trgs[:,8], _trgs[:,10].astype(int), _trgs[:,11], _trgs[:,2], _trgs[:,3], _trgs[:,12].astype(int), _trgs[:,13], _trgs[:,14]), dtype=etagen.trg_dtype)
-		print "... generated %i trigger cluster(s)" % (self.trgs.shape[0])
+		self.trgs = array(list(zip(_trgs[:,0], _trgs[:,1], _trgs[:,4], _trgs[:,6], _trgs[:,5], _trgs[:,7], _trgs[:,9], _trgs[:,8], _trgs[:,10].astype(int), _trgs[:,11], _trgs[:,2], _trgs[:,3], _trgs[:,12].astype(int), _trgs[:,13], _trgs[:,14])), dtype=etagen.trg_dtype)
+		print("... generated %i trigger cluster(s)" % (self.trgs.shape[0]))
 
 	def get_triggers_from_file(self, trg_file, **kwargs):
 		"""
@@ -179,7 +179,7 @@ class etagen(_etagen.etagen):
 		# s_time, e_time, c_time, c_freq, c_energy, p_time, p_freq, p_amp, p_imf_idx, p_snr, npts, snr
 		self.trgs = loadtxt(trg_file, dtype=etagen.trg_dtype, **kwargs)
 		self.snr_threshold = int(self.trgs['snr'].min())
-		print "... read %i trigger cluster(s)" % (self.trgs.shape[0])
+		print("... read %i trigger cluster(s)" % (self.trgs.shape[0]))
 
 	def copy(self, start=None, end=None):
 		"""
@@ -264,9 +264,9 @@ class etagen(_etagen.etagen):
 		"""
 		if indices is None:
 			indices = range(self.nimfs)
-			print "plotting TFD for all IMFs"
+			print("plotting TFD for all IMFs")
 		else:
-			print "plotting TFD for IMF", indices
+			print("plotting TFD for IMF {}".format(indices))
 		timef = self.start_time + arange(1,self.insa.shape[-1]).reshape((1,-1)).repeat(len(indices),axis=0)/float(self.fsr)
 		insf = self.insf[indices]
 		args = insf > 0
@@ -275,7 +275,7 @@ class etagen(_etagen.etagen):
 		scatter(timef[args][idx], insf[args][idx], c=insa[idx], **kwargs)
 		#for i in id:
 			#scatter(timef[self.insf[i]>0], self.insf[i,self.insf[i]>0], c=self.insa[i,self.insf[i]>0], **kwargs)
-		print "... done"
+		print("... done")
 
 	def plot_trgs(self, indices=None, clustered=True, scale=True, **kwargs):
 		"""
@@ -294,14 +294,14 @@ class etagen(_etagen.etagen):
 		else:
 			trgs = self.utrgs
 		if indices is None:
-			print "plotting all triggers"
+			print("plotting all triggers")
 		else:
 			trgs = trgs[indices]
-			print "plotting given triggers"
+			print("plotting given triggers")
 		idx = trgs['snr'].argsort()
 		if 's' not in kwargs.keys():
 			kwargs['s'] = 20
 		if scale:
 			kwargs['s'] = trgs[idx]['snr'] * kwargs['s'] / median(trgs[idx]['snr'])
 		scatter(trgs[idx]['p_time'], trgs[idx]['p_freq'], c=trgs[idx]['snr'], **kwargs)
-		print "... done"
+		print("... done")

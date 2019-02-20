@@ -1,2 +1,5 @@
 .*.swp
 build/*
+dist/*
+etagen.egg-info/*
+*.bak

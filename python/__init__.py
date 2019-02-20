@@ -16,5 +16,5 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from _wrap import etagen
-from _etagen import find_extrema, evaluate_spline, weightType as kernel
+from ._wrap import etagen
+from ._etagen import find_extrema, evaluate_spline, weightType as kernel

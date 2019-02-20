@@ -16,46 +16,91 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from distutils.core import setup, Extension
-import numpy as np
-import sys
+from setuptools import Extension
+from numpy.distutils.core import setup
+from numpy import get_include
+from glob import glob
+from sys import platform, version_info
+from ctypes.util import find_library
 
-if sys.platform == 'darwin':
-	extra_options = dict(
-		extra_compile_args = ['-O3', '-I/opt/local/include', '-I/opt/local/include/libomp', '-fopenmp', '-std=c++0x'],
-		extra_link_args=['-L/opt/local/lib', '-L/opt/local/lib/libomp', "-fopenmp"],
-		libraries=['boost_python-mt']
-	)
-elif sys.platform == 'linux2':
-	extra_options = dict(
-		extra_compile_args = ['-O3', '-fopenmp', '-I/usr/include/c++', '-std=c++0x'],
-		extra_link_args=["-fopenmp"],
-		libraries=['boost_python']
-	)
-else:
-	extra_options = dict(
-		extra_compile_args = ['-O3', '-fopenmp', '-std=c++11'],
-		extra_link_args=["-fopenmp"],
-		libraries=['boost_python']
-	)
+def find_boost():
+  if platform == 'darwin':
+    if version_info[0] == 3:
+      return "boost_python3-mt"
+    else:
+      return "boost_python-mt"
+  else:
+    boost_python = 'boost_python-py{}{}'.format(*version_info[:2])
+    if not find_library(boost_python):
+      print(boost_python)
+      boost_python = 'boost_python'
+      print(boost_python)
+    return boost_python
 
-etagen_mod = Extension('etagen._etagen',
-        sources = [
-	'emd.cpp',
-        'cubic.cpp',
-        'DHT.cpp',
-        'trigger.cpp',
-        'cluster.cpp',
-        'etagen.cpp',
-	],
-	**extra_options)
-setup(name = "etagen",
-        version = "0.1",
-        description = "python wapper of Etagen library",
-        author = "Whansun Kim and Edwin J. Son",
-        author_email = "hwansun.kim@gmail.com, eddy@nims.re.kr",
-	packages=['etagen'],
-	package_dir={'etagen': 'python'},
-        ext_modules = [etagen_mod],
-	include_dirs = np.get_include()
-        )
+def find_numpy():
+  if version_info[0] == 3:
+    boost_numpy = 'boost_numpy3'
+  else:
+    boost_numpy = 'boost_numpy'
+
+  if platform == 'darwin':
+    boost_numpy += '-mt'
+  else:
+    boost_numpy2 = boost_numpy + '-py{}{}'.format(*version_info[:2])
+    if find_library(boost_numpy2):
+      boost_numpy = boost_numpy2
+
+  return boost_numpy
+
+def main():
+  extra_options = dict(
+    sources = [
+      'emd.cpp',
+      'cubic.cpp',
+      'DHT.cpp',
+      'trigger.cpp',
+      'cluster.cpp',
+#      'etagen.cpp',
+    ],
+    libraries = [
+      find_boost(),
+#      find_numpy()
+    ],
+    include_dirs = [get_include(), '/opt/local/include'],
+  )
+
+  boost_numpy = find_numpy()
+  if not find_library(boost_numpy):
+    extra_options['sources'].append('etagen.numeric.cpp')
+  else:
+    extra_options['libraries'].append(boost_numpy)
+    extra_options['sources'].append('etagen.numpy.cpp')
+
+  extensions = [
+    Extension(
+      name = 'etagen._etagen',
+#      sources = glob('src/*.c*'),
+      extra_compile_args = ['-O3', '-fopenmp', '-std=c++11'],
+      extra_link_args=["-fopenmp"],
+#      libraries = [find_boost(), find_numpy()],
+#      include_dirs = [get_include(), '/opt/local/include'],
+      library_dirs = ['/opt/local/lib'],
+      **extra_options
+    ),
+  ]
+
+  setup(
+    name = "etagen",
+    version = "0.2",
+    description = "python wapper of Etagen library",
+    author = "Whansun Kim and Edwin J. Son",
+    author_email = "hwansun.kim@gmail.com, eddy@nims.re.kr",
+    packages = ['etagen'],
+    package_dir = {'etagen': 'python'},
+    ext_modules = extensions,
+#    include_dirs = np.get_include()
+    install_requires = ['numpy']
+    )
+
+if __name__ == '__main__':
+  main()
