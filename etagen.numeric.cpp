@@ -680,7 +680,7 @@ object spline_(object & _x, object & _y, bool mono=false)
 BOOST_PYTHON_MODULE(_etagen)
 {
 	numeric::array::set_module_and_type("numpy", "ndarray");
-	import_array();
+	_import_array();
 	enum_<weightTpye>("weightType")
 	.value("EXP_KERNEL", exp_kernel)
 	.value("SIN_KERNEL", sin_kernel)
