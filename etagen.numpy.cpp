@@ -286,6 +286,7 @@ class etagen
 		}
 		~etagen()
 		{
+			FLOAT* tmp;
 			if (weight != NULL) free(weight);
 			if (w != NULL) free(w);
 		}
@@ -589,14 +590,14 @@ void etagen::hilbert_(int _filter_len, int _stride)
 	{
 		*(_hht_series + i) = CFLOAT (*(_imf_series + i), *(_dht_result + i));
 	}
-
+	
 	hht = (object) DoubleToNumpyArray(shape[0], shape[1], _hht_series);
 	insa = (object) DoubleToNumpyArray(shape[0], shape[1], _dht_amplitude);
 	insf = (object) DoubleToNumpyArray(fshape[0], fshape[1], _dht_frequency);
-	free(_dht_result);
-	free(_hht_series);
-	free(_dht_amplitude);
-	free(_dht_frequency);
+	//free(_dht_result);
+	//free(_hht_series);
+	//free(_dht_amplitude);
+	//free(_dht_frequency);
 }
 
 /** METHOD FOR THE INTERNAL USE
@@ -630,6 +631,7 @@ list etagen::gen_utrgs(FLOAT snr_th, int sidx, int len)
 	FLOAT* _imf_series = PyArray_DATA(imf);
 	FLOAT* _dht_amplitude = PyArray_DATA(insa);
 	FLOAT* _dht_frequency = PyArray_DATA(insf);
+
 	for(int i=0; i < numberofimf; i++)
 	{
 		ret.append(trigger_gen(i, _imf_series + data_size*i + sidx, len, _dht_amplitude + data_size*i + sidx, _dht_frequency + (data_size-1)*i + sidx, med_abs_dev(data_size, _time_series), snr_th));
