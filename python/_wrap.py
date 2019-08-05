@@ -22,7 +22,7 @@ from matplotlib.pyplot import scatter
 
 class etagen(etagen._etagen.etagen):
 	# dtype for trigger informations
-	utrg_dtype = [('imf_idx',int), ('s_time',float), ('e_time',float), ('p_time',float), ('p_amp',float), ('p_freq',float), ('f_min',float), ('f_max',float), ('snr',float)]
+	utrg_dtype = [('imf_idx',float), ('s_time',float), ('e_time',float), ('p_time',float), ('p_amp',float), ('p_freq',float), ('f_min',float), ('f_max',float), ('snr',float)]
 
 	trg_dtype = [('s_time',float), ('e_time',float), ('c_time',float), ('c_freq',float), ('c_energy',float), ('p_time',float), ('p_freq',float), ('p_amp',float), ('p_imf_idx',int), ('p_snr',float), ('f_min',float), ('f_max',float), ('npts',int), ('snr_rss',float), ('snr',float)]
 
@@ -88,7 +88,7 @@ class etagen(etagen._etagen.etagen):
 				_trgs = _trgs[_trgs[:,3] < stride - overlap/2]
 			_trgs[:,1:4] /= self.fsr
 			_trgs[:,1:4] += self.start_time + float(j)/self.fsr
-			self.utrgs = hstack((self.utrgs, array(list(zip(_trgs[:,0].astype(int), _trgs[:,1], _trgs[:,2], _trgs[:,3], _trgs[:,4], _trgs[:,5], _trgs[:,6], _trgs[:,7], _trgs[:,8])), dtype=etagen.utrg_dtype)))
+			self.utrgs = hstack((self.utrgs, array(list(zip(_trgs[:,0], _trgs[:,1], _trgs[:,2], _trgs[:,3], _trgs[:,4], _trgs[:,5], _trgs[:,6], _trgs[:,7], _trgs[:,8])), dtype=etagen.utrg_dtype)))
 		self.utrgs.sort(order=['imf_idx', 'p_time'])
 		print("... generated %i trigger event(s)" % (self.utrgs.shape[0]))
 

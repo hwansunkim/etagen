@@ -22,6 +22,7 @@
 #include <cmath>
 #include <fstream>
 #include <omp.h>
+#include <unistd.h>
 #include "cluster.hpp"
 
 trgLink::trgLink()
@@ -109,7 +110,7 @@ int trgLink::show()
 	printf("fmin : %.2f, ", trg->fmin);
 	printf("fmax : %.2f\n ", trg->fmax);
 	#endif
-
+ 
 	if(next != NULL)
 	{
 		ret += next->show();
@@ -152,11 +153,11 @@ int cluster::show()
 	if(data != NULL)
 	{
 		n = data->show();
-		printf("total : %d\n", n);
 	}
 	if(next != NULL)
 	{
 		ret += next->show();
+		printf("total : %d\n", n);
 	}
 	return ret + n;
 }
@@ -186,6 +187,8 @@ cluster* cluster::clustering(trginfo *trg, FLOAT alpha, FLOAT beta)
 {
 	cluster *clt = NULL;
 	int ret = -1;
+
+	/* At first, It checks whether given trigger information matches the own information in the cluster. */
 	if((start_index - alpha) <= (trg->end_index + alpha) && ( end_index + alpha )>= (trg->start_index - alpha) && fmin / (1.0 + beta) <= trg->fmax * (1.0 + beta) && fmax * (1.0 + beta) >= trg->fmin / (1.0 + beta))
 	{
 		ret = data->matching(trg, alpha, beta);
@@ -195,6 +198,7 @@ cluster* cluster::clustering(trginfo *trg, FLOAT alpha, FLOAT beta)
 		}
 	}
 	
+	/* If there are other clusters, It has to check whether there are matched clusters. */
 	if(next != NULL)
 	{
 		cluster *tmp = next->clustering(trg, alpha, beta);
@@ -203,17 +207,18 @@ cluster* cluster::clustering(trginfo *trg, FLOAT alpha, FLOAT beta)
 			if(ret == 1)
 			{
 				//merge
+
 				merge(tmp);
+				if(tmp->last == 1)
+				{
+					last = 1;
+					next = NULL;
+				}
 				if(tmp->next != NULL)
 				{
 					next = tmp->next;
 					tmp->next = NULL;
 					delete tmp;
-				}
-				if(tmp->last == 1)
-				{
-					last = 1;
-					next = NULL;
 				}
 
 				clt = this;
@@ -302,7 +307,7 @@ void cluster::info(cltinfo *clt, FLOAT m, FLOAT* imf, int imf_num, int data_size
 		clt->snr += wave[j] * wave[j];
 	}
 	clt->snr = sqrt(clt->snr) / m / MADFACTOR;
-	delete wave;
+	delete [] wave;
 }
 
 int cluster::numCluster()
@@ -347,7 +352,9 @@ void triggerCluster::feed(trginfo *trg)
 	if(root == NULL)
 	{
 		root = new cluster();
+
 		root->data = new trgLink();
+
 		root->data->trg = trg;
 		root->start_index = trg->start_index;
 		root->end_index = trg->end_index;
@@ -432,14 +439,6 @@ cltinfo* triggerCluster::getClusteredTrigger(FLOAT th_snr)
 	{
 		tmp->info(&clt[i], median, imf, imf_num, data_size, start_time, fsr);
 
-		// int n = (clt[i].end_index - clt[i].start_index) * fsr;
-		// FLOAT *wave = new FLOAT[n];
-		// int len = getWaveform(i, &wave);
-		// FLOAT snr = 0.0;
-		// for (int j=0; j < len; j++)
-		// 	snr += wave[j] * wave[j];
-		// clt[i].snr = sqrt(snr) / median / MADFACTOR;
-
 		if(clt[i].snr >= th_snr)
 		{
 			i++;
@@ -447,56 +446,31 @@ cltinfo* triggerCluster::getClusteredTrigger(FLOAT th_snr)
 		tmp = tmp->next;
 	}
 	numofCluster = i;
-	// printf("total Clusters : %d > %lf\n", numofCluster, th_snr);
+	printf("total Clusters : %d > %lf\n", numofCluster, th_snr);
 	return clt;
 }
 
 int triggerCluster::getWaveform(int index, FLOAT **ret)
 {
-	trgLink *trg = root->find(clt[index].start_index, clt[index].end_index, clt[index].fmin, clt[index].fmax);
-	//trg->show();
-	int n = (clt[index].end_index - clt[index].start_index) * fsr;
-
-	if (trg == NULL)
-		return 0;
-	
-	//trg->show();
-	FLOAT *wave = new FLOAT[n];
-	std::memset(wave, 0.0, sizeof(FLOAT)*n);
-	int start = (clt[index].start_index - start_time) * fsr;
-	// printf("start index : %d, length : %d \n", start, n);
-	while(trg != NULL)
-	{
-		trginfo *t = trg->trg;
-		int s = (t->start_index - start_time) * fsr;
-		int e = (t->end_index - start_time) * fsr;
-		int id = (int)t->id;
-		for(int i= 0; i < e-s; i++)
-		{
-
-			wave[s-start + i] += *(imf + data_size * id + s +i); 
-		}
-
-		trg = trg->next;
-	}
-	*ret = wave;
-	return n;
+	long indx = (long)index;
+	return getWaveform(indx, ret);
 }
 
 int triggerCluster::getWaveform(long index, FLOAT **ret)
 {
 	trgLink *trg = root->find(clt[index].start_index, clt[index].end_index, clt[index].fmin, clt[index].fmax);
-	//trg->show();
-	int n = (clt[index].end_index - clt[index].start_index) * fsr;
-
-	if (trg == NULL)
+	if (trg ==NULL)
 		return 0;
+	int n = (clt[index].end_index - clt[index].start_index) * fsr;
+	FLOAT *wave = NULL;
 	
-	//trg->show();
-	FLOAT *wave = new FLOAT[n];
+	try{
+		wave = new FLOAT[n];
+	} catch (std::bad_alloc&) {
+		throw; 
+	}
 	std::memset(wave, 0.0, sizeof(FLOAT)*n);
 	int start = (clt[index].start_index - start_time) * fsr;
-	// printf("start index : %d, length : %d \n", start, n);
 	while(trg != NULL)
 	{
 		trginfo *t = trg->trg;

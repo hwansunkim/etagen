@@ -653,15 +653,13 @@ np::ndarray etagen::gen_trgs(np::ndarray _utrgs, FLOAT snr_th, FLOAT ttol, FLOAT
 	Py_intptr_t const* shape = PyArray_DIMS(imf);
 	FLOAT* _imf_series = PyArray_DATA(imf);
 	FLOAT* _time_series = PyArray_DATA(data);
-
+	
 	tc.set_param(ttol, ftol, med_abs_dev(data_size, _time_series), _imf_series, shape[0], shape[1], start_time, fsr);
 	for(int i=0; i < _ntrgs; i++)
 	{
 		tc.feed(&_trg[i]);
 	}
-
 	clt = tc.getClusteredTrigger(snr_th);
-
 	return DoubleToNumpyArray(tc.numofCluster, cltinfo_num, (FLOAT*)clt);
 }
 
@@ -676,17 +674,21 @@ np::ndarray etagen::gen_trgs(np::ndarray _utrgs, FLOAT snr_th, FLOAT ttol, FLOAT
  */
 np::ndarray etagen::get_waveform(int index)
 {
-	int len;
-	FLOAT *wave;
-	len = tc.getWaveform(index, &wave);
-	return DoubleToNumpyArray(len, wave);
+	long indx = (long) index;
+
+	return get_waveform(indx);
 }
 
 np::ndarray etagen::get_waveform(long index)
 {
 	int len;
-	FLOAT *wave;
-	len = tc.getWaveform(index, &wave);
+	FLOAT *wave = NULL;
+	try
+	{
+		len = tc.getWaveform(index, &wave);
+	} catch (std::bad_alloc& e) {
+		len = tc.getWaveform(index, &wave);
+	}
 	return DoubleToNumpyArray(len, wave);
 }
 

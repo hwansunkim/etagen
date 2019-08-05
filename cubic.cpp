@@ -225,7 +225,15 @@ bool cubic_spline(std::vector<FLOAT>* x_series, std::vector<FLOAT>* y_series, st
     */
     if ((FLOAT)destX->size() < (*x_series)[n] - (*x_series)[0])
     {
-        return false;
+		delete [] h;
+		delete [] alpha;
+		delete [] l;
+		delete [] u;
+		delete [] z;
+		delete [] c;
+		delete [] b;
+		delete [] d;
+		return false;
     }
     else
     {
