@@ -286,7 +286,6 @@ class etagen
 		}
 		~etagen()
 		{
-			FLOAT* tmp;
 			if (weight != NULL) free(weight);
 			if (w != NULL) free(w);
 		}
@@ -324,6 +323,7 @@ class etagen
 		//object& get_utrgs;
 		np::ndarray gen_trgs(np::ndarray, FLOAT, FLOAT, FLOAT);
 		//object& get_trgs;
+		void show();
 };
 
 /** (re)set the parameters for (wS)EMD
@@ -657,7 +657,17 @@ np::ndarray etagen::gen_trgs(np::ndarray _utrgs, FLOAT snr_th, FLOAT ttol, FLOAT
 	tc.set_param(ttol, ftol, med_abs_dev(data_size, _time_series), _imf_series, shape[0], shape[1], start_time, fsr);
 	for(int i=0; i < _ntrgs; i++)
 	{
-		tc.feed(&_trg[i]);
+		trginfo *tmp = new trginfo[1];
+		tmp->id = _trg[i].id;
+		tmp->start_index = _trg[i].start_index;
+		tmp->end_index = _trg[i].end_index;
+		tmp->peak_index = _trg[i].peak_index;
+		tmp->amplitude = _trg[i].amplitude;
+		tmp->frequency = _trg[i].frequency;
+		tmp->fmin = _trg[i].fmin;
+		tmp->fmax = _trg[i].fmax;
+		tmp->snr = _trg[i].snr;
+		tc.feed(tmp);
 	}
 	clt = tc.getClusteredTrigger(snr_th);
 	return DoubleToNumpyArray(tc.numofCluster, cltinfo_num, (FLOAT*)clt);
@@ -690,6 +700,10 @@ np::ndarray etagen::get_waveform(long index)
 		len = tc.getWaveform(index, &wave);
 	}
 	return DoubleToNumpyArray(len, wave);
+}
+void etagen::show()
+{
+	tc.show();
 }
 
 object extrema_(object & a)
@@ -960,5 +974,8 @@ BOOST_PYTHON_MODULE(_etagen)
 	   "return type:\n"
 	   "    Numpy ndarray type"
 	   )
+	.def("show",             &etagen::show,
+			""
+		)
 	;
 }
