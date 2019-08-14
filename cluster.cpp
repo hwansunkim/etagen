@@ -263,7 +263,8 @@ void cluster::info(cltinfo *clt, FLOAT m, FLOAT* imf, int imf_num, int data_size
 
 	trgLink *tmp = data;
 
-	int n = (end_index - start_index) * fsr;
+	int n = (end_index - start_index) * fsr + 1;
+
 	FLOAT *wave = new FLOAT[n];
 	std::memset(wave, 0.0, sizeof(FLOAT)*n);
 	int start = (start_index - start_time) * fsr;
