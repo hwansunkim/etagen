@@ -626,11 +626,18 @@ numeric::array etagen::gen_trgs(numeric::array _utrgs, FLOAT snr_th, FLOAT ttol,
  */
 numeric::array etagen::get_waveform(int index)
 {
+	long indx = (long) index;
+	return get_waveform(indx);
+}
+
+numeric::array etagen::get_waveform(long index)
+{
 	int len;
 	FLOAT *wave;
 	len = tc.getWaveform(index, &wave);
 	return DoubleToNumpyArray(len, wave);
 }
+
 object extrema_(object & a)
 {
 	if (PyArray_NDIM(a.ptr()) != 1)
@@ -676,6 +683,8 @@ object spline_(object & _x, object & _y, bool mono=false)
 	     : cubic_spline(&x_pts, &y_pts, &x_data, &y_data);
 	return (object) stdVecToNumpyArray(y_data);
 }
+numeric::array (etagen::*get_waveform_int)(int) = &etagen::get_waveform;
+numeric::array (etagen::*get_waveform_long)(long) = &etagen::get_waveform;
 
 BOOST_PYTHON_MODULE(_etagen)
 {
@@ -883,12 +892,20 @@ BOOST_PYTHON_MODULE(_etagen)
 	    (arg("triggers"), arg("snr_threshold")=DEFAULT_SNR_THRESHOLD, arg("t_tolerance")=0, arg("f_tolerance")=0),
 	    "METHOD FOR THE INTERNAL USE\n"
 	    )
-	.def("get_waveform",            &etagen::get_waveform,
+	.def("get_waveform",            get_waveform_int,
 	   "reconstruct the waveform of the *indx*-th trigger\n"
 	   "arguments:\n"
 	   "    indx    the index of the trigger to reconstruct the waveform\n"
 	   "return type:\n"
 	   "    Numpy ndarray type"
 	   )
+	.def("get_waveform",            get_waveform_long,
+	   "reconstruct the waveform of the *indx*-th trigger\n"
+	   "arguments:\n"
+	   "    indx    the index of the trigger to reconstruct the waveform\n"
+	   "return type:\n"
+	   "    Numpy ndarray type"
+	   )
+
 	;
 }
