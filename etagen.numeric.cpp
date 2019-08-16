@@ -272,6 +272,7 @@ class etagen
 		//object& get_insf;
 		list gen_utrgs(FLOAT, int, int);
 		numeric::array get_waveform(int);
+		numeric::array get_waveform(long);
 		//object& get_utrgs;
 		numeric::array gen_trgs(numeric::array, FLOAT, FLOAT, FLOAT);
 		//object& get_trgs;
