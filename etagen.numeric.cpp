@@ -609,15 +609,15 @@ numeric::array etagen::gen_trgs(numeric::array _utrgs, FLOAT snr_th, FLOAT ttol,
 	for(int i=0; i < _ntrgs; i++)
 	{
 		trginfo *tmp = new trginfo;
-		tmp.id = _trg[i].id;
-		tmp.start_index = _trg[i].start_index;
-		tmp.end_index = _trg[i].end_index;
-		tmp.peak_index = _trg[i].peak_index;
-		tmp.amplitude = _trg[i].amplitude;
-		tmp.frequency = _trg[i].frequency;
-		tmp.fmin = _trg[i].fmin;
-		tmp.fmax = _trg[i].fmax;
-		tmp.snr = _trg[i].snr;
+		tmp->id = _trg[i].id;
+		tmp->start_index = _trg[i].start_index;
+		tmp->end_index = _trg[i].end_index;
+		tmp->peak_index = _trg[i].peak_index;
+		tmp->amplitude = _trg[i].amplitude;
+		tmp->frequency = _trg[i].frequency;
+		tmp->fmin = _trg[i].fmin;
+		tmp->fmax = _trg[i].fmax;
+		tmp->snr = _trg[i].snr;
 	
 		tc.feed(tmp);
 	}
