@@ -463,7 +463,7 @@ int triggerCluster::getWaveform(long index, FLOAT **ret)
 	trgLink *trg = root->find(clt[index].start_index, clt[index].end_index, clt[index].fmin, clt[index].fmax);
 	if (trg ==NULL)
 		return 0;
-	int n = (clt[index].end_index - clt[index].start_index) * fsr;
+	int n = (int)(clt[index].end_index * fsr) - (int)(clt[index].start_index * fsr);
 	FLOAT *wave = NULL;
 	
 	try{
@@ -472,7 +472,7 @@ int triggerCluster::getWaveform(long index, FLOAT **ret)
 		throw; 
 	}
 	std::memset(wave, 0.0, sizeof(FLOAT)*n);
-	int start = (clt[index].start_index - start_time) * fsr;
+	int start = (int)(clt[index].start_index * fsr)  - (int)(start_time * fsr);
 	while(trg != NULL)
 	{
 		trginfo *t = trg->trg;
