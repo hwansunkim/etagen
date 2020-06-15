@@ -32,6 +32,8 @@ def find_boost():
   else:
     boost_python = 'boost_python-py{}{}'.format(*version_info[:2])
     if not find_library(boost_python):
+      boost_python = 'boost_python{}{}'.format(*version_info[:2])
+    if not find_library(boost_python):
       print(boost_python)
       boost_python = 'boost_python'
       print(boost_python)
@@ -47,8 +49,11 @@ def find_numpy():
     boost_numpy += '-mt'
   else:
     boost_numpy2 = boost_numpy + '-py{}{}'.format(*version_info[:2])
+    boost_numpy3 = 'boost_numpy{}{}'.format(*version_info[:2])
     if find_library(boost_numpy2):
       boost_numpy = boost_numpy2
+    elif find_library(boost_numpy3):
+      boost_numpy = boost_numpy3
 
   return boost_numpy
 
@@ -71,6 +76,7 @@ def main():
 
   boost_numpy = find_numpy()
   if not find_library(boost_numpy):
+    print('Not found: Boost.Numpy')
     extra_options['sources'].append('etagen.numeric.cpp')
   else:
     extra_options['libraries'].append(boost_numpy)
