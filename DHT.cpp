@@ -96,7 +96,7 @@ FLOAT median(int n, FLOAT* src)
 
 int hsa(int n, FLOAT *src, FLOAT * imag, FLOAT *amplitude, FLOAT *frequency, FLOAT fs, bool last)
 {
-	const FLOAT pi2 = PI *2.0;
+	const FLOAT pi2 = PI *2.0, pi4 = PI *4.0, pi12 = PI *12.0;
 	int Nf = last ? n-1 : n;
 	FLOAT *fi = (FLOAT*)malloc(sizeof(FLOAT)*(Nf+1));
 	if (!last) fi[Nf] = std::atan2(imag[Nf], src[Nf]);
@@ -116,12 +116,19 @@ http://en.cppreference.com/w/cpp/numeric/math/atan2
 	//for(int i=0; i< n-1; i++)
 	for(int i=0; i< Nf; i++)
 	{	
+        if(i==0) frequency[i] = (fi[i+1] - fi[i])*fs/pi2;
+        else if(i==Nf-1) frequency[i] = (fi[i] - fi[i-1])*fs/pi2;
+        else if(i==1 || i==Nf-2) frequency[i] = (fi[i+1] - fi[i-1])*fs/pi4;
+        else frequency[i] = (-fi[i+2] + 8*fi[i+1] - 8*fi[i-1] + fi[i-2])*fs/pi12;
+/*
 		frequency[i] = (fi[i+1] - fi[i])*fs/pi2;
 		if(frequency[i] > fs/2) frequency[i] -= fs/2;
 		if(frequency[i] < -fs/2) frequency[i] += fs/2;
 		if(frequency[i] < 0) frequency[i] += fs/2;
+*/
 	}
 	free(fi);
+/*
 	FLOAT m = median(Nf, frequency);
 	if( m <= fs/4.0)
 	{
@@ -130,5 +137,6 @@ http://en.cppreference.com/w/cpp/numeric/math/atan2
 			if( frequency[i] > std::max(m*3, fs/4.0)) frequency[i] -= fs/2;
 		}
 	}
+*/
 	return 0;
 }
