@@ -96,10 +96,14 @@ FLOAT median(int n, FLOAT* src)
 
 int hsa(int n, FLOAT *src, FLOAT * imag, FLOAT *amplitude, FLOAT *frequency, FLOAT fs, bool last)
 {
-	const FLOAT pi2 = PI *2.0, pi4 = PI *4.0, pi12 = PI *12.0;
+	const FLOAT pi2 = PI *2.0, pi4 = PI *4.0, pi24 = PI *24.0;
+/*
 	int Nf = last ? n-1 : n;
 	FLOAT *fi = (FLOAT*)malloc(sizeof(FLOAT)*(Nf+1));
 	if (!last) fi[Nf] = std::atan2(imag[Nf], src[Nf]);
+*/
+	FLOAT *fi = (FLOAT*)malloc(sizeof(FLOAT)*(n));
+	FLOAT dfi;
 /* 
 http://en.cppreference.com/w/cpp/numeric/math/atan2 
 -PI <= atan2 <= PI
@@ -112,14 +116,23 @@ http://en.cppreference.com/w/cpp/numeric/math/atan2
 		fi[i] = std::atan2(imag[i], src[i]);
 	}
 
+	// unwrap routine (should be done sequentially) - added by Eddy
+	for(int i=1; i < n; i++)
+	{
+		dfi = std::fmod(fi[i] - fi[i-1] + PI, pi2);
+		if (dfi < 0.0) dfi += pi2;
+		fi[i] = fi[i-1] + dfi - PI;
+	}
+
 #pragma omp parallel for
 	//for(int i=0; i< n-1; i++)
-	for(int i=0; i< Nf; i++)
+	//for(int i=0; i< Nf; i++)
+	for(int i=0; i< n; i++)
 	{	
         if(i==0) frequency[i] = (fi[i+1] - fi[i])*fs/pi2;
-        else if(i==Nf-1) frequency[i] = (fi[i] - fi[i-1])*fs/pi2;
-        else if(i==1 || i==Nf-2) frequency[i] = (fi[i+1] - fi[i-1])*fs/pi4;
-        else frequency[i] = (-fi[i+2] + 8*fi[i+1] - 8*fi[i-1] + fi[i-2])*fs/pi12;
+        else if(i==n-1) frequency[i] = (fi[i] - fi[i-1])*fs/pi2;
+        else if(i==1 || i==n-2) frequency[i] = (fi[i+1] - fi[i-1])*fs/pi4;
+        else frequency[i] = (-fi[i+2] + 8*fi[i+1] - 8*fi[i-1] + fi[i-2])*fs/pi24;
 /*
 		frequency[i] = (fi[i+1] - fi[i])*fs/pi2;
 		if(frequency[i] > fs/2) frequency[i] -= fs/2;
