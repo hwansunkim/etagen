@@ -72,6 +72,7 @@
  */
 
 #include <boost/python.hpp>
+#include <boost/python/numeric.hpp>
 #include <numpy/ndarrayobject.h>
 #include <vector>
 #include <cmath>
@@ -507,7 +508,7 @@ void etagen::wsemd_()
 void etagen::hilbert_(int _filter_len, int _stride)
 {
 	npy_intp* shape = PyArray_DIMS(imf.ptr());
-	npy_intp fshape[2] = {shape[0], shape[1] - 1};
+	//npy_intp fshape[2] = {shape[0], shape[1] - 1};
 
 	int _fl = (_filter_len > MIN_DHT_FILTER_LENGTH) ? _filter_len
 		  : MIN_DHT_FILTER_LENGTH;
@@ -524,7 +525,8 @@ void etagen::hilbert_(int _filter_len, int _stride)
 	FLOAT* _dht_result = (FLOAT*)malloc(sizeof(FLOAT) * imfbuf_size);
 	CFLOAT* _hht_series = (CFLOAT*)malloc(sizeof(CFLOAT) * imfbuf_size);
 	FLOAT* _dht_amplitude = (FLOAT*)malloc(sizeof(FLOAT) * imfbuf_size);
-	FLOAT* _dht_frequency = (FLOAT*)malloc(sizeof(FLOAT) * fshape[0] * fshape[1]);
+	//FLOAT* _dht_frequency = (FLOAT*)malloc(sizeof(FLOAT) * fshape[0] * fshape[1]);
+	FLOAT* _dht_frequency = (FLOAT*)malloc(sizeof(FLOAT) * imfbuf_size);
 
 #pragma omp parallel for			
 	for(int i=0; i < shape[0]; i++)
@@ -534,7 +536,8 @@ void etagen::hilbert_(int _filter_len, int _stride)
 		for(int j=0; j < shape[1]; j += _strd)
 		{
 			bool last = (j + _strd < shape[1]) ? false : true;
-			hsa(std::min(_strd, (int)shape[1] - j), _imf_series + shape[1]*i + j, _dht_result + shape[1]*i + j, _dht_amplitude + shape[1]*i + j, _dht_frequency + fshape[1]*i + j, fsr, last);
+			//hsa(std::min(_strd, (int)shape[1] - j), _imf_series + shape[1]*i + j, _dht_result + shape[1]*i + j, _dht_amplitude + shape[1]*i + j, _dht_frequency + fshape[1]*i + j, fsr, last);
+			hsa(std::min(_strd, (int)shape[1] - j), _imf_series + shape[1]*i + j, _dht_result + shape[1]*i + j, _dht_amplitude + shape[1]*i + j, _dht_frequency + shape[1]*i + j, fsr, last);
 		}
 	}
 #pragma omp parallel for			
@@ -545,7 +548,8 @@ void etagen::hilbert_(int _filter_len, int _stride)
 
 	hht = (object) DoubleToNumpyArray(shape[0], shape[1], _hht_series);
 	insa = (object) DoubleToNumpyArray(shape[0], shape[1], _dht_amplitude);
-	insf = (object) DoubleToNumpyArray(fshape[0], fshape[1], _dht_frequency);
+	//insf = (object) DoubleToNumpyArray(fshape[0], fshape[1], _dht_frequency);
+	insf = (object) DoubleToNumpyArray(shape[0], shape[1], _dht_frequency);
 	free(_dht_result);
 	free(_hht_series);
 	free(_dht_amplitude);
@@ -585,7 +589,8 @@ list etagen::gen_utrgs(FLOAT snr_th, int sidx, int len)
 	FLOAT* _dht_frequency = static_cast<FLOAT *>(PyArray_DATA(insf.ptr()));
 	for(int i=0; i < numberofimf; i++)
 	{
-		ret.append(trigger_gen(i, _imf_series + data_size*i + sidx, len, _dht_amplitude + data_size*i + sidx, _dht_frequency + (data_size-1)*i + sidx, med_abs_dev(data_size, _time_series), snr_th));
+		//ret.append(trigger_gen(i, _imf_series + data_size*i + sidx, len, _dht_amplitude + data_size*i + sidx, _dht_frequency + (data_size-1)*i + sidx, med_abs_dev(data_size, _time_series), snr_th));
+		ret.append(trigger_gen(i, _imf_series + data_size*i + sidx, len, _dht_amplitude + data_size*i + sidx, _dht_frequency + data_size*i + sidx, med_abs_dev(data_size, _time_series), snr_th));
 		//ret.append(trigger_gen(i, _imf_series + data_size*i + sidx, len, _dht_amplitude + data_size*i + sidx, _dht_frequency + (data_size-1)*i + sidx, median(data_size, abs(data_size, _time_series)), snr_th));
 	}
 	return ret;

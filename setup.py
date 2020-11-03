@@ -31,12 +31,18 @@ def find_boost():
       return "boost_python-mt"
   else:
     boost_python = 'boost_python-py{}{}'.format(*version_info[:2])
-    if not find_library(boost_python):
+    bpl = find_library(boost_python)
+    if not bpl:
       boost_python = 'boost_python{}{}'.format(*version_info[:2])
-    if not find_library(boost_python):
-      print(boost_python)
-      boost_python = 'boost_python'
-      print(boost_python)
+      bpl = find_library(boost_python)
+      if not bpl:
+        print(boost_python)
+        boost_python = 'boost_python'
+        print(boost_python)
+      else:
+        print(bpl, 'found')
+    else:
+      print(bpl, 'found')
     return boost_python
 
 def find_numpy():
@@ -50,10 +56,14 @@ def find_numpy():
   else:
     boost_numpy2 = boost_numpy + '-py{}{}'.format(*version_info[:2])
     boost_numpy3 = 'boost_numpy{}{}'.format(*version_info[:2])
-    if find_library(boost_numpy2):
+    bnl2 = find_library(boost_numpy2)
+    bnl3 = find_library(boost_numpy3)
+    if bnl2:
       boost_numpy = boost_numpy2
-    elif find_library(boost_numpy3):
+      print(bnl2, 'found')
+    elif bnl3:
       boost_numpy = boost_numpy3
+      print(bnl3, 'found')
 
   return boost_numpy
 
