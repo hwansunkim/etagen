@@ -263,7 +263,7 @@ void cluster::info(cltinfo *clt, FLOAT m, FLOAT* imf, int imf_num, int data_size
 
 	trgLink *tmp = data;
 
-	int n = (int)(end_index*fsr) - (int)(start_index * fsr) + 1;
+	int n = (long long)(end_index*fsr) - (long long)(start_index * fsr) + 1;
 
 	FLOAT *wave = new FLOAT[n];
 	std::memset(wave, 0.0, sizeof(FLOAT)*n);
@@ -285,8 +285,8 @@ void cluster::info(cltinfo *clt, FLOAT m, FLOAT* imf, int imf_num, int data_size
 		clt->snr_rss += tmp->trg->snr * tmp->trg->snr;
 
 		trginfo *t = tmp->trg;
-		int s = (int)(t->start_index*fsr) - (int)(start_time * fsr);
-		int e = (int)(t->end_index*fsr) - (int)(start_time * fsr);
+		int s = (long long)(t->start_index*fsr) - (long long)(start_time * fsr);
+		int e = (long long)(t->end_index*fsr) - (long long)(start_time * fsr);
 		int id = (int)t->id;
 
 		for(int i= 0; i < e-s; i++)
